@@ -1,19 +1,196 @@
-// S.G.T-Consultorio-psicologico.cpp : Este archivo contiene la funci贸n "main". La ejecuci贸n del programa comienza y termina ah铆.
-//
-
+#pragma region Librerias
 #include <iostream>
+#include <vector>
+#include <string>
+#include <sys/stat.h> // Para crear directorios en Linux y Windows
+#pragma endregion
+using namespace std;
+#pragma region Constantes
+const string archivo1 = "Administrador.txt";
+const string archivo1 = "Profesional.txt";
+const string archivo1 = "Paciente.txt";
+#pragma endregion
+
+#pragma region Estructuras
+enum class DiaSemana //Representacion de los dias laborales del profesional
+{ 
+                                Lunes, 
+                                Martes, 
+                                Miercoles, 
+                                Jueves, 
+                                Viernes, 
+                                Sabado, 
+                                Domingo 
+};
+#pragma endregion
+#pragma region Clases
+    class Persona //Representacion general de las personas involucradas en el sistema
+    {
+    public:
+        int                     p_id;
+        string                  p_nombre, 
+                                p_apellido;
+
+        Persona                (int id, 
+                                string nombre, 
+                                string apellido)
+
+            :                   p_id       (id), 
+                                p_nombre   (nombre),
+                                p_apellido (apellido)
+        {
+        
+        }
+        virtual void mostrarDatos() const {
+            cout << "ID: " << p_id << "\nNombre: " << p_nombre << "\nApellido: " << p_apellido << endl;
+        }
+    };
+    class Administrador : public Persona //Representacion del administrador (heredara de persona) 
+    {
+    public:
+        string                  p_usuario, 
+                                p_contrasenia;
+
+        Administrador          (int id, 
+                                string nombre, 
+                                string apellido, 
+                                string usuario, 
+                                string contrasenia)
+
+            : Persona          (id, 
+                                nombre, 
+                                apellido),
+              p_usuario        (usuario),
+              p_contrasenia    (contrasenia)
+        {
+
+        }
+        void mostrarDatos() const override {
+            Persona::mostrarDatos();
+            cout << "Usuario: " << p_usuario << "\n";
+        }
+    };
+    class Profesional : public Persona //Representacion del profesional (heredara de persona)
+    {
+    public:
+        string                  p_dni,
+                                p_especialidad,
+                                p_telefono,
+                                p_email;
+        vector <DiaSemana>      p_diaLaboral;
+
+        Profesional            (int id, 
+                                string nombre,
+                                string apellido,
+                                string dni,
+                                string especialidad,
+                                string telefono,
+                                string email,
+                                vector <DiaSemana> diaLaboral)
+
+            : Persona          (id,
+                                nombre,
+                                apellido),
+              p_dni            (dni),
+              p_especialidad   (especialidad),
+              p_telefono       (telefono),
+              p_email          (email),
+              p_diaLaboral     (diaLaboral)
+        {
+
+        }
+        void mostrarDatos() const override {
+            Persona::mostrarDatos();
+            cout << "DNI: " << p_dni << "\nEspecialidad: " << p_especialidad << "\nTelefono: " << p_telefono << "\nEmail: " << p_email << "\n";
+        }
+    };
+    class Paciente : public Persona //Representacion del paciente (heredara de persona)
+    {
+    public:
+        string                  p_dni,
+                                p_telefono,
+                                p_email, 
+                                p_fechaNacimiento;
+
+        Paciente               (int id,
+                                string nombre,
+                                string apellido,
+                                string dni,
+                                string telefono,
+                                string email,
+                                string fechaNacimiento)
+
+            : Persona          (id,nombre,apellido),
+              p_dni            (dni),
+              p_telefono       (telefono),
+              p_email          (email),
+              p_fechaNacimiento(fechaNacimiento)
+        {
+        
+        }
+        void mostrarDatos() const override {
+            Persona::mostrarDatos();
+            cout << "DNI: " << p_dni << "\nTelefono: " << p_telefono << "\nEmail: " << p_email << "\nFecha de Nacimiento: " << p_fechaNacimiento << "\n";
+        }
+    };
+    class Turnos //Representacion de los turnos
+    {
+    public:
+        int                     p_id, 
+                                p_idAdministrador,
+                                p_idProfesional,
+                                p_idPaciente,
+                                p_periodicidad;
+        tm                      p_fechaTurno;
+        string                  p_estado;
+        bool                    p_recurrente;
+
+        Turnos                 (int id, 
+                                int idAdministrador, 
+                                int idProfesional, 
+                                int idPaciente, 
+                                int periodicidad,
+                                const tm& fechaTurno,
+                                string estado, 
+                                bool recurrente)
+
+            : p_id             (id),
+              p_idAdministrador(idAdministrador),
+              p_idProfesional  (idProfesional),
+              p_idPaciente     (idPaciente),
+              p_periodicidad   (periodicidad),
+              p_fechaTurno     (fechaTurno),
+              p_estado         (estado),
+              p_recurrente     (recurrente)
+        {
+
+        }
+        void mostrarDatos() const {
+            cout << "ID Turno: " << p_id << "\nID Administrador: " << p_idAdministrador
+                << "\nID Profesional: " << p_idProfesional << "\nID Paciente: " << p_idPaciente
+                << "\nPeriodicidad: " << p_periodicidad << "\nEstado: " << p_estado
+                << "\nRecurrente: " << (p_recurrente ? "Si" : "No") << "\n";
+        }
+    };
+    class gestorCsvArchivos // Gestor de archivos 
+    {
+
+    };
+#pragma endregion
 
 int main()
 {
+
+    Administrador admin(1, "Carlos", "G髆ez", "carlosAdmin", "admin123");
+    Profesional prof(2, "Ana", "Mart韓ez", "12345678", "Psicolog韆", "1122334455", "ana@email.com", { DiaSemana::Lunes, DiaSemana::Miercoles });
+    Paciente paciente(3, "Luis", "P閞ez", "87654321", "2233445566", "luis@email.com", "12/05/1995");
+
+    // Llamar a mostrarDatos()
+    admin.mostrarDatos();
+    cout << endl;
+    prof.mostrarDatos();
+    cout << endl;
+    paciente.mostrarDatos();
     return 0;
 }
 
-// Ejecutar programa: Ctrl + F5 o men煤 Depurar > Iniciar sin depurar
-// Depurar programa: F5 o men煤 Depurar > Iniciar depuraci贸n
-
-// Sugerencias para primeros pasos: 1. Use la ventana del Explorador de soluciones para agregar y administrar archivos
-//   2. Use la ventana de Team Explorer para conectar con el control de c贸digo fuente
-//   3. Use la ventana de salida para ver la salida de compilaci贸n y otros mensajes
-//   4. Use la ventana Lista de errores para ver los errores
-//   5. Vaya a Proyecto > Agregar nuevo elemento para crear nuevos archivos de c贸digo, o a Proyecto > Agregar elemento existente para agregar archivos de c贸digo existentes al proyecto
-//   6. En el futuro, para volver a abrir este proyecto, vaya a Archivo > Abrir > Proyecto y seleccione el archivo .sln
