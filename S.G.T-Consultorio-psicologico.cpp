@@ -2,14 +2,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 #include <sys/stat.h> // Para crear directorios en Linux y Windows
+#include <direct.h> // Para _getcwd
+#include <cstring>  // Para strlen
 #pragma endregion
 using namespace std;
-#pragma region Constantes
-const string archivo1 = "Administrador.txt";
-const string archivo1 = "Profesional.txt";
-const string archivo1 = "Paciente.txt";
-#pragma endregion
 
 #pragma region Estructuras
 enum class DiaSemana //Representacion de los dias laborales del profesional
@@ -42,7 +40,12 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         
         }
         virtual void mostrarDatos() const {
-            cout << "ID: " << p_id << "\nNombre: " << p_nombre << "\nApellido: " << p_apellido << endl;
+            cout << "ID: " 
+                 << p_id 
+                 << "\nNombre: " 
+                 << p_nombre 
+                 << "\nApellido: " 
+                 << p_apellido << endl;
         }
     };
     class Administrador : public Persona //Representacion del administrador (heredara de persona) 
@@ -67,7 +70,9 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
-            cout << "Usuario: " << p_usuario << "\n";
+            cout << "Usuario: " 
+                 << p_usuario 
+                 << "\n";
         }
     };
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
@@ -101,7 +106,15 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
-            cout << "DNI: " << p_dni << "\nEspecialidad: " << p_especialidad << "\nTelefono: " << p_telefono << "\nEmail: " << p_email << "\n";
+            cout << "DNI: " 
+                 << p_dni 
+                 << "\nEspecialidad: " 
+                 << p_especialidad 
+                 << "\nTelefono: " 
+                 << p_telefono 
+                 << "\nEmail: " 
+                 << p_email  
+                 << "\n";
         }
     };
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
@@ -130,7 +143,12 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
-            cout << "DNI: " << p_dni << "\nTelefono: " << p_telefono << "\nEmail: " << p_email << "\nFecha de Nacimiento: " << p_fechaNacimiento << "\n";
+            cout << "DNI: " 
+                 << p_dni 
+                 << "\nTelefono: " 
+                 << p_telefono << "\nEmail: " 
+                 << p_email << "\nFecha de Nacimiento: " 
+                 << p_fechaNacimiento << "\n";
         }
     };
     class Turnos //Representacion de los turnos
@@ -166,31 +184,74 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
         }
         void mostrarDatos() const {
-            cout << "ID Turno: " << p_id << "\nID Administrador: " << p_idAdministrador
-                << "\nID Profesional: " << p_idProfesional << "\nID Paciente: " << p_idPaciente
-                << "\nPeriodicidad: " << p_periodicidad << "\nEstado: " << p_estado
-                << "\nRecurrente: " << (p_recurrente ? "Si" : "No") << "\n";
+            cout << "ID Turno: " 
+                 << p_id 
+                 << "\nID Administrador: " 
+                 << p_idAdministrador
+                 << "\nID Profesional: " 
+                 << p_idProfesional 
+                 << "\nID Paciente: " 
+                 << p_idPaciente
+                 << "\nPeriodicidad: " 
+                 << p_periodicidad 
+                 << "\nEstado: " 
+                 << p_estado
+                 << "\nRecurrente: " 
+                 << (p_recurrente ? "Si" : "No") << "\n";
         }
     };
     class gestorCsvArchivos // Gestor de archivos 
     {
 
+        const string archivoAdministrador = "Administrador.txt";
+        const string archivoProfesional = "Profesional.txt";
+        const string archivoPaciente = "Paciente.txt";
+
+        //archivos de escritura y lectura.
+        fstream A_Administradores;
+        fstream A_Profesionales;
+        fstream A_Pacientes;
+    public:
+        gestorCsvArchivos()
+        {
+            VerificacionDeArchivo(archivoAdministrador,A_Administradores);
+            VerificacionDeArchivo(archivoProfesional,A_Profesionales);
+            VerificacionDeArchivo(archivoPaciente,A_Pacientes);
+        }
+        void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
+        {
+            archivo.open(nombreArchivo, ios::in);
+
+            if (!archivo)
+            {
+                cout << "El archivo no existe, se creara: " << nombreArchivo << endl;
+                archivo.open(nombreArchivo, ios::out);
+                archivo.close();
+            }
+            else
+            {
+                archivo.close();
+            }
+
+            archivo.open(nombreArchivo, ios::in | ios::out | ios::app);
+
+            if (!archivo)
+            {
+                cout << "Error al abrir o crear el archivo: " << nombreArchivo << "\n";
+            }
+            else
+            {
+                cout << "Se abrio correctamente el archivo: " << nombreArchivo << "\n";
+            }
+        }
     };
 #pragma endregion
 
 int main()
 {
 
-    Administrador admin(1, "Carlos", "Gómez", "carlosAdmin", "admin123");
-    Profesional prof(2, "Ana", "Martínez", "12345678", "Psicología", "1122334455", "ana@email.com", { DiaSemana::Lunes, DiaSemana::Miercoles });
-    Paciente paciente(3, "Luis", "Pérez", "87654321", "2233445566", "luis@email.com", "12/05/1995");
-
-    // Llamar a mostrarDatos()
-    admin.mostrarDatos();
-    cout << endl;
-    prof.mostrarDatos();
-    cout << endl;
-    paciente.mostrarDatos();
+    gestorCsvArchivos gestor;
+    cin.get();
     return 0;
 }
 
