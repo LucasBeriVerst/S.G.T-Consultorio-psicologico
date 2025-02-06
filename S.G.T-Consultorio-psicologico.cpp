@@ -224,8 +224,9 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             if (!archivo)
             {
-                cout << "El archivo no existe, se creara: " << nombreArchivo << endl;
-                archivo.open(nombreArchivo, ios::out);
+                cout << "El archivo no existe, se creara: "  
+                     << nombreArchivo << endl;
+                archivo.open          (nombreArchivo, ios::out);
                 archivo.close();
             }
             else
@@ -237,11 +238,14 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             if (!archivo)
             {
-                cout << "Error al abrir o crear el archivo: " << nombreArchivo << "\n";
+                cout << "Error al abrir o crear el archivo: " 
+                     << nombreArchivo << "\n";
             }
             else
             {
-                cout << "Se abrio correctamente el archivo: " << nombreArchivo << "\n";
+                cout << "Se abrio correctamente el archivo: " 
+                     << nombreArchivo << "\n";
+                archivo.close();
             }
         }
     };
