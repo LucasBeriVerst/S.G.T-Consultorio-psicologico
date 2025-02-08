@@ -6,6 +6,8 @@
 #include <sys/stat.h> // Para crear directorios en Linux y Windows
 #include <direct.h> // Para _getcwd
 #include <cstring>  // Para strlen
+#include <chrono>
+#include <sstream>
 #pragma endregion
 using namespace std;
 
@@ -51,6 +53,24 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << "\nApellido: " 
                  << p_apellido << endl;
         }
+        static int generarId(const string& archivo) {
+            ifstream file(archivo);
+            if (!file.is_open()) return 1;  // Si el archivo no existe, empezar desde 1
+
+            int maxId = 0;
+            string line;
+
+            while (getline(file, line)) {
+                stringstream ss(line);
+                int id;
+
+                // Validar si la línea tiene al menos un número entero válido
+                if (ss >> id) {
+                    maxId = max(maxId, id);
+                }
+            }
+            return maxId + 1;  // Devolver el mayor ID encontrado + 1
+        }
     };
     class Administrador : public Persona //Representacion del administrador (heredara de persona) 
     {
@@ -58,17 +78,16 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 p_contrasenia;
 
     public:
-        Administrador          (int id, 
-                                string nombre, 
+        Administrador          (string nombre, 
                                 string apellido, 
                                 string usuario, 
                                 string contrasenia)
 
-            : Persona          (id, 
+            : Persona          (generarId("Administrador.txt"), 
                                 nombre, 
-                                apellido),
-              p_usuario        (usuario),
-              p_contrasenia    (contrasenia)
+                                apellido), 
+              p_usuario         (usuario), 
+              p_contrasenia     (contrasenia) 
         {
 
         }
@@ -88,26 +107,27 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         vector <DiaSemana>      p_diaLaboral;
 
     public:
-        Profesional            (int id, 
-                                string nombre,
-                                string apellido,
-                                string dni,
-                                string especialidad,
+        Profesional            (string nombre, 
+                                string apellido, 
+                                string dni, 
+                                string especialidad, 
                                 string telefono,
-                                string email,
-                                vector <DiaSemana> diaLaboral)
+                                string email, 
+                                vector<DiaSemana> diaLaboral)
 
-            : Persona          (id,
-                                nombre,
-                                apellido),
-              p_dni            (dni),
-              p_especialidad   (especialidad),
-              p_telefono       (telefono),
-              p_email          (email),
-              p_diaLaboral     (diaLaboral)
+            : Persona          (generarId("Profesional.txt"), 
+                                nombre, 
+                                apellido), 
+              p_dni            (dni), 
+              p_especialidad   (especialidad), 
+              p_telefono       (telefono), 
+              p_email          (email), 
+              p_diaLaboral     (diaLaboral) 
         {
 
         }
+
+
         void mostrarDatos() const override {
             Persona::mostrarDatos();
             cout << "DNI: " 
@@ -129,21 +149,22 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 p_fechaNacimiento;
 
     public:
-        Paciente               (int id,
-                                string nombre,
-                                string apellido,
-                                string dni,
-                                string telefono,
-                                string email,
+        Paciente               (string nombre, 
+                                string apellido, 
+                                string dni, 
+                                string telefono, 
+                                string email, 
                                 string fechaNacimiento)
 
-            : Persona          (id,nombre,apellido),
-              p_dni            (dni),
-              p_telefono       (telefono),
-              p_email          (email),
-              p_fechaNacimiento(fechaNacimiento)
+            : Persona          (generarId("Paciente.txt"), 
+                                nombre, 
+                                apellido), 
+              p_dni            (dni), 
+              p_telefono       (telefono), 
+              p_email          (email), 
+              p_fechaNacimiento(fechaNacimiento) 
         {
-        
+
         }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
@@ -155,37 +176,37 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_fechaNacimiento << "\n";
         }
     };
-    class Turnos //Representacion de los turnos
+    class Turno //Representacion de los turnos
     {
         int                     p_id, 
                                 p_idAdministrador,
                                 p_idProfesional,
                                 p_idPaciente,
-                                p_periodicidad;
-        tm                      p_fechaTurno;
-        string                  p_estado;
+                                p_periodicidad;                     
+        string                  p_fechaTurno,
+                                p_horaTurno,
+                                p_estado;
         bool                    p_recurrente;
 
     public:
-        Turnos                 (int id, 
-                                int idAdministrador, 
+        Turno                  (int idAdministrador, 
                                 int idProfesional, 
                                 int idPaciente, 
-                                int periodicidad,
-                                const tm& fechaTurno,
+                                int periodicidad, 
+                                const string& fechaTurno, 
+                                const string& horaTurno,
                                 string estado, 
                                 bool recurrente)
 
-            : p_id             (id),
-              p_idAdministrador(idAdministrador),
-              p_idProfesional  (idProfesional),
+            : p_id(generarId   ("Turnos.txt")), 
+              p_idAdministrador(idAdministrador), 
+              p_idProfesional  (idProfesional), 
               p_idPaciente     (idPaciente),
-              p_periodicidad   (periodicidad),
+              p_periodicidad   (periodicidad), 
               p_fechaTurno     (fechaTurno),
+              p_horaTurno      (horaTurno),
               p_estado         (estado),
-              p_recurrente     (recurrente)
-        {
-
+              p_recurrente     (recurrente) {
         }
         void mostrarDatos() const {
             cout << "ID Turno: " 
@@ -203,6 +224,23 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << "\nRecurrente: " 
                  << (p_recurrente ? "Si" : "No") << "\n";
         }
+        static int generarId(const string& archivo) {
+            ifstream file(archivo);
+            if (!file.is_open()) return 1;
+
+            int maxId = 0;
+            string line;
+
+            while (getline(file, line)) {
+                stringstream ss(line);
+                int id;
+
+                if (ss >> id) {  // Solo procesar si el ID es válido
+                    maxId = max(maxId, id);
+                }
+            }
+            return maxId + 1;
+        }
     };
     class gestorCsvArchivos // Gestor de archivos 
     {
@@ -210,17 +248,20 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         const string archivoAdministrador = "Administrador.txt";
         const string archivoProfesional = "Profesional.txt";
         const string archivoPaciente = "Paciente.txt";
+        const string archivoTurno = "Turnos.txt";
 
         //archivos de escritura y lectura.
         fstream A_Administradores;
         fstream A_Profesionales;
         fstream A_Pacientes;
+        fstream A_Turnos;
     public:
         gestorCsvArchivos()
         {
             VerificacionDeArchivo(archivoAdministrador,A_Administradores);
             VerificacionDeArchivo(archivoProfesional,A_Profesionales);
             VerificacionDeArchivo(archivoPaciente,A_Pacientes);
+            VerificacionDeArchivo(archivoTurno, A_Turnos);
         }
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
@@ -257,8 +298,11 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
 int main()
 {
-
-    gestorCsvArchivos gestor;
+    gestorCsvArchivos gestor; //Constructor de gestor: Verifica la creacion e integridad de los archivos
+    std::vector<Turno> listaTurnos;
+    std::vector<Profesional> listaProfesionales;
+    std::vector<Paciente> listaPacientes;
+    std::vector<Administrador> listaAdministradores;
     cin.get();
     return 0;
 }
