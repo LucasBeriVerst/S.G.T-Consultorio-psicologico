@@ -24,11 +24,11 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 #pragma region Clases
     class Persona //Representacion general de las personas involucradas en el sistema
     {
-    public:
+    protected:
         int                     p_id;
         string                  p_nombre, 
                                 p_apellido;
-
+    public:
         Persona                (int id, 
                                 string nombre, 
                                 string apellido)
@@ -36,6 +36,10 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             :                   p_id       (id), 
                                 p_nombre   (nombre),
                                 p_apellido (apellido)
+        {
+        
+        }
+        ~Persona()
         {
         
         }
@@ -50,10 +54,10 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
     };
     class Administrador : public Persona //Representacion del administrador (heredara de persona) 
     {
-    public:
         string                  p_usuario, 
                                 p_contrasenia;
 
+    public:
         Administrador          (int id, 
                                 string nombre, 
                                 string apellido, 
@@ -77,13 +81,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
     };
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
     {
-    public:
         string                  p_dni,
                                 p_especialidad,
                                 p_telefono,
                                 p_email;
         vector <DiaSemana>      p_diaLaboral;
 
+    public:
         Profesional            (int id, 
                                 string nombre,
                                 string apellido,
@@ -119,12 +123,12 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
     };
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
     {
-    public:
         string                  p_dni,
                                 p_telefono,
                                 p_email, 
                                 p_fechaNacimiento;
 
+    public:
         Paciente               (int id,
                                 string nombre,
                                 string apellido,
@@ -153,7 +157,6 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
     };
     class Turnos //Representacion de los turnos
     {
-    public:
         int                     p_id, 
                                 p_idAdministrador,
                                 p_idProfesional,
@@ -163,6 +166,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         string                  p_estado;
         bool                    p_recurrente;
 
+    public:
         Turnos                 (int id, 
                                 int idAdministrador, 
                                 int idProfesional, 
