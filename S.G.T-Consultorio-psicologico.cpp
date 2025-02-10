@@ -71,6 +71,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             }
             return maxId + 1;  // Devolver el mayor ID encontrado + 1
         }
+        int getId() const { return p_id; }
+        string getNombre() const { return p_nombre; }
+        string getApellido() const { return p_apellido; }
+
+        // Setters
+        void setNombre(const string& _nombre) { p_nombre = _nombre; }
+        void setApellido(const string& _apellido) { p_apellido = _apellido; }
     };
     class Administrador : public Persona //Representacion del administrador (heredara de persona) 
     {
@@ -91,11 +98,34 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         {
 
         }
+        string toCsv() const {
+            stringstream ss;
+            ss << p_id << "," << p_nombre << "," << p_apellido << "," << p_usuario << "," << p_contrasenia;
+            return ss.str();
+        }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
             cout << "Usuario: " 
                  << p_usuario 
                  << "\n";
+        }
+        static Administrador crearAdministrador() {
+            string               nombre, 
+                                 apellido, 
+                                 usuario, 
+                                 contrasenia;
+            cout << "Ingrese nombre: "; 
+            cin >> nombre;
+            cout << "Ingrese apellido: "; 
+            cin >> apellido;
+            cout << "Ingrese usuario: "; 
+            cin >> usuario;
+            cout << "Ingrese contrasenia: "; 
+            cin >> contrasenia;
+            return Administrador(nombre, 
+                                 apellido, 
+                                 usuario, 
+                                 contrasenia);
         }
     };
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
@@ -126,8 +156,6 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         {
 
         }
-
-
         void mostrarDatos() const override {
             Persona::mostrarDatos();
             cout << "DNI: " 
@@ -139,6 +167,16 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << "\nEmail: " 
                  << p_email  
                  << "\n";
+        }
+        static Profesional crearDesdeEntrada() {
+            string nombre, apellido, dni, especialidad, telefono, email;
+            cout << "Ingrese nombre: "; cin >> nombre;
+            cout << "Ingrese apellido: "; cin >> apellido;
+            cout << "Ingrese DNI: "; cin >> dni;
+            cout << "Ingrese especialidad: "; cin >> especialidad;
+            cout << "Ingrese telefono: "; cin >> telefono;
+            cout << "Ingrese email: "; cin >> email;
+            return Profesional(nombre, apellido, dni, especialidad, telefono, email, {});
         }
     };
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
@@ -174,6 +212,16 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_telefono << "\nEmail: " 
                  << p_email << "\nFecha de Nacimiento: " 
                  << p_fechaNacimiento << "\n";
+        }
+        static Paciente crearDesdeEntrada() {
+            string nombre, apellido, dni, telefono, email, fechaNacimiento;
+            cout << "Ingrese nombre: "; cin >> nombre;
+            cout << "Ingrese apellido: "; cin >> apellido;
+            cout << "Ingrese DNI: "; cin >> dni;
+            cout << "Ingrese telefono: "; cin >> telefono;
+            cout << "Ingrese email: "; cin >> email;
+            cout << "Ingrese fecha de nacimiento (YYYY-MM-DD): "; cin >> fechaNacimiento;
+            return Paciente(nombre, apellido, dni, telefono, email, fechaNacimiento);
         }
     };
     class Turno //Representacion de los turnos
@@ -241,6 +289,22 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             }
             return maxId + 1;
         }
+        static Turno crearTurno() {
+            int idAdministrador, idProfesional, idPaciente, periodicidad;
+            string fechaTurno, horaTurno, estado;
+            bool recurrente;
+
+            cout << "Ingrese ID del administrador: "; cin >> idAdministrador;
+            cout << "Ingrese ID del profesional: "; cin >> idProfesional;
+            cout << "Ingrese ID del paciente: "; cin >> idPaciente;
+            cout << "Ingrese periodicidad: "; cin >> periodicidad;
+            cout << "Ingrese fecha del turno (YYYY-MM-DD): "; cin >> fechaTurno;
+            cout << "Ingrese hora del turno (HH:MM): "; cin >> horaTurno;
+            cout << "Ingrese estado del turno: "; cin >> estado;
+            cout << "Es recurrente? (1 = Si, 0 = No): "; cin >> recurrente;
+
+            return Turno(idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado, recurrente);
+        }
     };
     class gestorCsvArchivos // Gestor de archivos 
     {
@@ -262,6 +326,19 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             VerificacionDeArchivo(archivoProfesional,A_Profesionales);
             VerificacionDeArchivo(archivoPaciente,A_Pacientes);
             VerificacionDeArchivo(archivoTurno, A_Turnos);
+        }
+        template <typename T>
+        static void guardarEnArchivo(const string& nombreArchivo, const vector<T>& lista) {
+            ofstream file(nombreArchivo);
+            if (!file.is_open()) {
+                cerr << "Error al abrir el archivo para escritura." << endl;
+                return;
+            }
+
+            for (const auto& objeto : lista) {
+                file << objeto.toCsv() << "\n";  // Llamamos al método toCsv() del objeto
+            }
+            file.close();
         }
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
@@ -303,6 +380,16 @@ int main()
     std::vector<Profesional> listaProfesionales;
     std::vector<Paciente> listaPacientes;
     std::vector<Administrador> listaAdministradores;
+
+    listaAdministradores.push_back(Administrador::crearAdministrador());
+    gestor.guardarEnArchivo("Administrador", listaAdministradores);
+    listaAdministradores.push_back(Administrador::crearAdministrador());
+    gestor.guardarEnArchivo("Administrador", listaAdministradores);
+
+    cout << "Lista de Administradores:\n";
+    for (const auto& administrador : listaAdministradores) {
+        administrador.mostrarDatos(); // Llamamos a la función mostrarDatos()
+    }
     cin.get();
     return 0;
 }
