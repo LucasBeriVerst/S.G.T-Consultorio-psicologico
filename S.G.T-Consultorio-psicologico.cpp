@@ -53,24 +53,21 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << "\nApellido: " 
                  << p_apellido << endl;
         }
-        static int generarId(const string& archivo) {
-            ifstream file(archivo);
-            if (!file.is_open()) return 1;  // Si el archivo no existe, empezar desde 1
+        template <typename T>
+        static int generarId(const vector<T>& lista) {
+            if (lista.empty()) {
+                return 1; // Si la lista está vacía, empezar desde 1
+            }
 
             int maxId = 0;
-            string line;
-
-            while (getline(file, line)) {
-                stringstream ss(line);
-                int id;
-
-                // Validar si la línea tiene al menos un número entero válido
-                if (ss >> id) {
-                    maxId = max(maxId, id);
+            for (const auto& objeto : lista) {
+                if (objeto.getId() > maxId) {
+                    maxId = objeto.getId();
                 }
             }
-            return maxId + 1;  // Devolver el mayor ID encontrado + 1
+            return maxId + 1; // Devolver el mayor ID encontrado + 1
         }
+
         int getId() const { return p_id; }
         string getNombre() const { return p_nombre; }
         string getApellido() const { return p_apellido; }
@@ -85,12 +82,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 p_contrasenia;
 
     public:
-        Administrador          (string nombre, 
+        Administrador          (int    id,
+                                string nombre, 
                                 string apellido, 
                                 string usuario, 
                                 string contrasenia)
 
-            : Persona          (generarId("Administrador.txt"), 
+            : Persona           (id, 
                                 nombre, 
                                 apellido), 
               p_usuario         (usuario), 
@@ -109,23 +107,15 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_usuario 
                  << "\n";
         }
-        static Administrador crearAdministrador() {
-            string               nombre, 
-                                 apellido, 
-                                 usuario, 
-                                 contrasenia;
-            cout << "Ingrese nombre: "; 
-            cin >> nombre;
-            cout << "Ingrese apellido: "; 
-            cin >> apellido;
-            cout << "Ingrese usuario: "; 
-            cin >> usuario;
-            cout << "Ingrese contrasenia: "; 
-            cin >> contrasenia;
-            return Administrador(nombre, 
-                                 apellido, 
-                                 usuario, 
-                                 contrasenia);
+        static Administrador crearAdministrador(const vector<Administrador>& lista) {
+            string nombre, apellido, usuario, contrasenia;
+            cout << "Ingrese nombre: "; cin >> nombre;
+            cout << "Ingrese apellido: "; cin >> apellido;
+            cout << "Ingrese usuario: "; cin >> usuario;
+            cout << "Ingrese contrasenia: "; cin >> contrasenia;
+
+            int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
+            return Administrador(nuevoId, nombre, apellido, usuario, contrasenia);
         }
     };
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
@@ -137,7 +127,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         vector <DiaSemana>      p_diaLaboral;
 
     public:
-        Profesional            (string nombre, 
+        Profesional            (int    id,
+                                string nombre, 
                                 string apellido, 
                                 string dni, 
                                 string especialidad, 
@@ -145,7 +136,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 string email, 
                                 vector<DiaSemana> diaLaboral)
 
-            : Persona          (generarId("Profesional.txt"), 
+            : Persona          (id, 
                                 nombre, 
                                 apellido), 
               p_dni            (dni), 
@@ -168,7 +159,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_email  
                  << "\n";
         }
-        static Profesional crearDesdeEntrada() {
+        string toCsv() const {
+            stringstream ss;
+            ss << p_id << "," << p_nombre << "," << p_apellido << ","
+                << p_dni << "," << p_especialidad << "," << p_telefono << "," << p_email;
+            return ss.str();
+        }
+        static Profesional crearProfesional(const vector<Profesional>& lista) {
             string nombre, apellido, dni, especialidad, telefono, email;
             cout << "Ingrese nombre: "; cin >> nombre;
             cout << "Ingrese apellido: "; cin >> apellido;
@@ -176,7 +173,9 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Ingrese especialidad: "; cin >> especialidad;
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
-            return Profesional(nombre, apellido, dni, especialidad, telefono, email, {});
+
+            int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
+            return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, {});
         }
     };
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
@@ -187,14 +186,15 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 p_fechaNacimiento;
 
     public:
-        Paciente               (string nombre, 
+        Paciente               (int    id,
+                                string nombre, 
                                 string apellido, 
                                 string dni, 
                                 string telefono, 
                                 string email, 
                                 string fechaNacimiento)
 
-            : Persona          (generarId("Paciente.txt"), 
+            : Persona          (id, 
                                 nombre, 
                                 apellido), 
               p_dni            (dni), 
@@ -213,7 +213,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_email << "\nFecha de Nacimiento: " 
                  << p_fechaNacimiento << "\n";
         }
-        static Paciente crearDesdeEntrada() {
+        string toCsv() const {
+            stringstream ss;
+            ss << p_id << "," << p_nombre << "," << p_apellido << ","
+                << p_dni << "," << p_telefono << "," << p_email << "," << p_fechaNacimiento;
+            return ss.str();
+        }
+        static Paciente crearPaciente(const vector<Paciente>& lista) {
             string nombre, apellido, dni, telefono, email, fechaNacimiento;
             cout << "Ingrese nombre: "; cin >> nombre;
             cout << "Ingrese apellido: "; cin >> apellido;
@@ -221,7 +227,9 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
             cout << "Ingrese fecha de nacimiento (YYYY-MM-DD): "; cin >> fechaNacimiento;
-            return Paciente(nombre, apellido, dni, telefono, email, fechaNacimiento);
+
+            int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
+            return Paciente(nuevoId, nombre, apellido, dni, telefono, email, fechaNacimiento);
         }
     };
     class Turno //Representacion de los turnos
@@ -237,7 +245,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         bool                    p_recurrente;
 
     public:
-        Turno                  (int idAdministrador, 
+        Turno                  (int id,
+                                int idAdministrador, 
                                 int idProfesional, 
                                 int idPaciente, 
                                 int periodicidad, 
@@ -246,7 +255,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 string estado, 
                                 bool recurrente)
 
-            : p_id(generarId   ("Turnos.txt")), 
+            : p_id             (id), 
               p_idAdministrador(idAdministrador), 
               p_idProfesional  (idProfesional), 
               p_idPaciente     (idPaciente),
@@ -272,24 +281,28 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << "\nRecurrente: " 
                  << (p_recurrente ? "Si" : "No") << "\n";
         }
-        static int generarId(const string& archivo) {
-            ifstream file(archivo);
-            if (!file.is_open()) return 1;
+        string toCsv() const {
+            stringstream ss;
+            ss << p_id << "," << p_idAdministrador << "," << p_idProfesional << ","
+                << p_idPaciente << "," << p_periodicidad << "," << p_fechaTurno << ","
+                << p_horaTurno << "," << p_estado << "," << p_recurrente;
+            return ss.str();
+        }
+        int getId() const { return p_id; }
+        static int generarId(const vector<Turno>& lista) {
+            if (lista.empty()) {
+                return 1; // Si la lista está vacía, empezar desde 1
+            }
 
             int maxId = 0;
-            string line;
-
-            while (getline(file, line)) {
-                stringstream ss(line);
-                int id;
-
-                if (ss >> id) {  // Solo procesar si el ID es válido
-                    maxId = max(maxId, id);
+            for (const auto& objeto : lista) {
+                if (objeto.getId() > maxId) {
+                    maxId = objeto.getId();
                 }
             }
-            return maxId + 1;
+            return maxId + 1; // Devolver el mayor ID encontrado + 1
         }
-        static Turno crearTurno() {
+        static Turno crearTurno(const vector<Turno>& lista) {
             int idAdministrador, idProfesional, idPaciente, periodicidad;
             string fechaTurno, horaTurno, estado;
             bool recurrente;
@@ -303,7 +316,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Ingrese estado del turno: "; cin >> estado;
             cout << "Es recurrente? (1 = Si, 0 = No): "; cin >> recurrente;
 
-            return Turno(idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado, recurrente);
+            int nuevoId = generarId(lista); // Generar el ID basado en la lista
+            return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado, recurrente);
         }
     };
     class gestorCsvArchivos // Gestor de archivos 
@@ -380,11 +394,10 @@ int main()
     std::vector<Profesional> listaProfesionales;
     std::vector<Paciente> listaPacientes;
     std::vector<Administrador> listaAdministradores;
-
-    listaAdministradores.push_back(Administrador::crearAdministrador());
-    gestor.guardarEnArchivo("Administrador", listaAdministradores);
-    listaAdministradores.push_back(Administrador::crearAdministrador());
-    gestor.guardarEnArchivo("Administrador", listaAdministradores);
+    
+    listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
+    listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
+    gestor.guardarEnArchivo("Administrador.txt", listaAdministradores);
 
     cout << "Lista de Administradores:\n";
     for (const auto& administrador : listaAdministradores) {
