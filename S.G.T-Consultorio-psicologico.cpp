@@ -1,4 +1,4 @@
-#pragma region Librerias
+#pragma region Librerias y nameSpace
 #include <iostream>
 #include <vector>
 #include <string>
@@ -8,9 +8,8 @@
 #include <cstring>  // Para strlen
 #include <chrono>
 #include <sstream>
-#pragma endregion
 using namespace std;
-
+#pragma endregion
 #pragma region Estructuras
 enum class DiaSemana //Representacion de los dias laborales del profesional
 { 
@@ -24,6 +23,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 };
 #pragma endregion
 #pragma region Clases
+#pragma region Persona::
     class Persona //Representacion general de las personas involucradas en el sistema
     {
     protected:
@@ -76,6 +76,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         void setNombre(const string& _nombre) { p_nombre = _nombre; }
         void setApellido(const string& _apellido) { p_apellido = _apellido; }
     };
+#pragma endregion
+#pragma region Administrador
     class Administrador : public Persona //Representacion del administrador (heredara de persona) 
     {
         string                  p_usuario, 
@@ -133,6 +135,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             this->p_contrasenia = contrasenia;
         }
     };
+#pragma endregion
+#pragma region Profesional
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
     {
         string                  p_dni,
@@ -194,16 +198,38 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
-            char delim;
-            ss >> p_id >> delim;
-            getline(ss, p_nombre, ',');
-            getline(ss, p_apellido, ',');
-            getline(ss, p_dni, ',');
-            getline(ss, p_especialidad, ',');
-            getline(ss, p_telefono, ',');
-            getline(ss, p_email, ',');
+            string id, nombre, apellido, dni, especialidad, telefono, email, diasLaboralesStr;
+            getline(ss, id, ',');
+            getline(ss, nombre, ',');
+            getline(ss, apellido, ',');
+            getline(ss, dni, ',');
+            getline(ss, especialidad, ',');
+            getline(ss, telefono, ',');
+            getline(ss, email, ',');
+            getline(ss, diasLaboralesStr, ',');
+
+            this->p_id = stoi(id);
+            this->p_nombre = nombre;
+            this->p_apellido = apellido;
+            this->p_dni = dni;
+            this->p_especialidad = especialidad;
+            this->p_telefono = telefono;
+            this->p_email = email;
+
+            // Convertir diasLaboralesStr a vector<DiaSemana>
+            this->p_diaLaboral.clear();
+            stringstream diasStream(diasLaboralesStr);
+            string dia;
+            while (getline(diasStream, dia, ';')) {
+                int diaInt = stoi(dia);
+                if (diaInt >= 0 && diaInt <= 6) { // Validar que sea un día válido
+                    this->p_diaLaboral.push_back(static_cast<DiaSemana>(diaInt));
+                }
+            }
         }
     };
+#pragma endregion
+#pragma region Paciente
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
     {
         string                  p_dni,
@@ -269,6 +295,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             getline(ss, p_fechaNacimiento, ',');
         }
     };
+#pragma endregion
+#pragma region Turnos
     class Turno //Representacion de los turnos
     {
         int                     p_id, 
@@ -370,6 +398,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             ss >> p_recurrente;
         }
     };
+#pragma endregion
+#pragma region Gestor
     class gestorCsvArchivos // Gestor de archivos 
     {
 
@@ -423,6 +453,25 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             archivo.close();
             return administradores;
         }
+        vector<Profesional> cargarProfesionalesDesdeArchivo() {
+            vector<Profesional> profesionales;
+            ifstream archivo(archivoProfesional);
+
+            if (!archivo.is_open()) {
+                cerr << "Error al abrir el archivo: " << archivoProfesional << "\n";
+                return profesionales;
+            }
+
+            string linea;
+            while (getline(archivo, linea)) {
+                Profesional profesional(0, "", "", "", "", "", "", {}); // Crear un objeto temporal
+                profesional.fromCsv(linea); // Cargar datos desde la línea CSV
+                profesionales.push_back(profesional); // Agregar a la lista
+            }
+
+            archivo.close();
+            return profesionales;
+        }
 
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
@@ -456,22 +505,30 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
     };
 #pragma endregion
+#pragma endregion
 
 int main()
 {
     gestorCsvArchivos gestor; //Constructor de gestor: Verifica la creacion e integridad de los archivos
     std::vector<Turno> listaTurnos;
-    std::vector<Profesional> listaProfesionales;
+    std::vector<Profesional> listaProfesionales = gestor.cargarProfesionalesDesdeArchivo();
     std::vector<Paciente> listaPacientes;
     std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
-
+    /*
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Administrador.txt", listaAdministradores);
-
-    cout << "Lista de Administradores:\n";
     for (const auto& administrador : listaAdministradores) {
         administrador.mostrarDatos(); // Llamamos a la función mostrarDatos()
+        cout << "-------------\n";
+    }
+    */
+    listaProfesionales.push_back(Profesional::crearProfesional(listaProfesionales));
+    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Profesional.txt", listaProfesionales);
+    cout << "Lista de Administradores:\n";
+    for (const auto& profesional : listaProfesionales) {
+        profesional.mostrarDatos(); // Llamamos a la función mostrarDatos()
+        cout << "-------------\n"; // Separador para mejor legibilidad
     }
     cin.get();
     return 0;
