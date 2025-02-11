@@ -117,6 +117,21 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Administrador(nuevoId, nombre, apellido, usuario, contrasenia);
         }
+        void fromCsv(const string& linea) {
+            stringstream ss(linea);
+            string id, nombre, apellido, usuario, contrasenia;
+            getline(ss, id, ',');
+            getline(ss, nombre, ',');
+            getline(ss, apellido, ',');
+            getline(ss, usuario, ',');
+            getline(ss, contrasenia, ',');
+
+            this->p_id = stoi(id);
+            this->p_nombre = nombre;
+            this->p_apellido = apellido;
+            this->p_usuario = usuario;
+            this->p_contrasenia = contrasenia;
+        }
     };
     class Profesional : public Persona //Representacion del profesional (heredara de persona)
     {
@@ -177,6 +192,17 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, {});
         }
+        void fromCsv(const string& csvLine) {
+            stringstream ss(csvLine);
+            char delim;
+            ss >> p_id >> delim;
+            getline(ss, p_nombre, ',');
+            getline(ss, p_apellido, ',');
+            getline(ss, p_dni, ',');
+            getline(ss, p_especialidad, ',');
+            getline(ss, p_telefono, ',');
+            getline(ss, p_email, ',');
+        }
     };
     class Paciente : public Persona //Representacion del paciente (heredara de persona)
     {
@@ -230,6 +256,17 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Paciente(nuevoId, nombre, apellido, dni, telefono, email, fechaNacimiento);
+        }
+        void fromCsv(const string& csvLine) {
+            stringstream ss(csvLine);
+            char delim;
+            ss >> p_id >> delim;
+            getline(ss, p_nombre, ',');
+            getline(ss, p_apellido, ',');
+            getline(ss, p_dni, ',');
+            getline(ss, p_telefono, ',');
+            getline(ss, p_email, ',');
+            getline(ss, p_fechaNacimiento, ',');
         }
     };
     class Turno //Representacion de los turnos
@@ -319,6 +356,19 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             int nuevoId = generarId(lista); // Generar el ID basado en la lista
             return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado, recurrente);
         }
+        void fromCsv(const string& csvLine) {
+            stringstream ss(csvLine);
+            char delim;
+            ss >> p_id >> delim;
+            ss >> p_idAdministrador >> delim;
+            ss >> p_idProfesional >> delim;
+            ss >> p_idPaciente >> delim;
+            ss >> p_periodicidad >> delim;
+            getline(ss, p_fechaTurno, ',');
+            getline(ss, p_horaTurno, ',');
+            getline(ss, p_estado, ',');
+            ss >> p_recurrente;
+        }
     };
     class gestorCsvArchivos // Gestor de archivos 
     {
@@ -342,7 +392,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             VerificacionDeArchivo(archivoTurno, A_Turnos);
         }
         template <typename T>
-        static void guardarEnArchivo(const string& nombreArchivo, const vector<T>& lista) {
+        void ConvertirInformacionDeListaYGuardarlaEnElArchivo(const string& nombreArchivo, const vector<T>& lista) {
             ofstream file(nombreArchivo);
             if (!file.is_open()) {
                 cerr << "Error al abrir el archivo para escritura." << endl;
@@ -354,6 +404,26 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             }
             file.close();
         }
+        vector<Administrador> cargarAdministradoresDesdeArchivo() {
+            vector<Administrador> administradores;
+            ifstream archivo(archivoAdministrador);
+
+            if (!archivo.is_open()) {
+                cerr << "Error al abrir el archivo: " << archivoAdministrador << "\n";
+                return administradores;
+            }
+
+            string linea;
+            while (getline(archivo, linea)) {
+                Administrador admin(0, "", "", "", ""); // Crear un objeto temporal
+                admin.fromCsv(linea); // Cargar datos desde la línea CSV
+                administradores.push_back(admin); // Agregar a la lista
+            }
+
+            archivo.close();
+            return administradores;
+        }
+
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
@@ -393,11 +463,11 @@ int main()
     std::vector<Turno> listaTurnos;
     std::vector<Profesional> listaProfesionales;
     std::vector<Paciente> listaPacientes;
-    std::vector<Administrador> listaAdministradores;
-    
+    std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
+
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
-    gestor.guardarEnArchivo("Administrador.txt", listaAdministradores);
+    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Administrador.txt", listaAdministradores);
 
     cout << "Lista de Administradores:\n";
     for (const auto& administrador : listaAdministradores) {
