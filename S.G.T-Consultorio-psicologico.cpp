@@ -168,20 +168,37 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         }
         void mostrarDatos() const override {
             Persona::mostrarDatos();
-            cout << "DNI: " 
-                 << p_dni 
-                 << "\nEspecialidad: " 
-                 << p_especialidad 
-                 << "\nTelefono: " 
-                 << p_telefono 
-                 << "\nEmail: " 
-                 << p_email  
-                 << "\n";
+            cout << "DNI: "
+                << p_dni
+                << "\nEspecialidad: "
+                << p_especialidad
+                << "\nTelefono: "
+                << p_telefono
+                << "\nEmail: "
+                << p_email
+                << "\nDias Laborales: ";
+
+            const vector<string> dias = { "Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sábado", "Domingo" };
+            for (size_t i = 0; i < p_diaLaboral.size(); ++i) {
+                cout << static_cast<int>(p_diaLaboral[i]) << " - " << dias[static_cast<int>(p_diaLaboral[i])];
+                if (i < p_diaLaboral.size() - 1) {
+                    cout << ", ";
+                }
+            }
+            cout << "\n";
         }
         string toCsv() const {
             stringstream ss;
             ss << p_id << "," << p_nombre << "," << p_apellido << ","
-                << p_dni << "," << p_especialidad << "," << p_telefono << "," << p_email;
+                << p_dni << "," << p_especialidad << "," << p_telefono << "," << p_email << ",";
+
+            for (size_t i = 0; i < p_diaLaboral.size(); ++i) {
+                ss << static_cast<int>(p_diaLaboral[i]);
+                if (i < p_diaLaboral.size() - 1) {
+                    ss << ";";
+                }
+            }
+
             return ss.str();
         }
         static Profesional crearProfesional(const vector<Profesional>& lista) {
@@ -193,8 +210,28 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
 
+            // Solicitar días laborales
+            vector<DiaSemana> diasLaborales;
+            int cantidadDias;
+            cout << "¿Cuantos dias laborales tiene el profesional? "; cin >> cantidadDias;
+
+            for (int i = 0; i < cantidadDias; ++i) {
+                int dia;
+                cout << "Ingrese el día " << (i + 1) << " (0 = Lunes, 1 = Martes, ..., 6 = Domingo): ";
+                cin >> dia;
+
+                // Validar que el día esté en el rango correcto
+                if (dia >= 0 && dia <= 6) {
+                    diasLaborales.push_back(static_cast<DiaSemana>(dia));
+                }
+                else {
+                    cout << "Día no válido. Debe ser un número entre 0 y 6.\n";
+                    --i; // Repetir la entrada para este día
+                }
+            }
+
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
-            return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, {});
+            return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, diasLaborales);
         }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
