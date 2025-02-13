@@ -315,7 +315,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Ingrese DNI: "; cin >> dni;
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
-            cout << "Ingrese fecha de nacimiento (YYYY-MM-DD): "; cin >> fechaNacimiento;
+            cout << "Ingrese fecha de nacimiento (DD/MM/YEAR): "; cin >> fechaNacimiento;
 
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Paciente(nuevoId, nombre, apellido, dni, telefono, email, fechaNacimiento);
@@ -509,6 +509,25 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             archivo.close();
             return profesionales;
         }
+        vector<Paciente> cargarPacientesDesdeArchivo() {
+            vector<Paciente> pacientes;
+            ifstream archivo(archivoPaciente);
+
+            if (!archivo.is_open()) {
+                cerr << "Error al abrir el archivo: " << archivoPaciente << "\n";
+                return pacientes;
+            }
+
+            string linea;
+            while (getline(archivo, linea)) {
+                Paciente paciente(0, "", "", "", "", "", ""); // Crear un objeto temporal
+                paciente.fromCsv(linea); // Cargar datos desde la línea CSV
+                pacientes.push_back(paciente); // Agregar a la lista
+            }
+
+            archivo.close();
+            return pacientes;
+        }
 
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
@@ -549,7 +568,7 @@ int main()
     gestorCsvArchivos gestor; //Constructor de gestor: Verifica la creacion e integridad de los archivos
     std::vector<Turno> listaTurnos;
     std::vector<Profesional> listaProfesionales = gestor.cargarProfesionalesDesdeArchivo();
-    std::vector<Paciente> listaPacientes;
+    std::vector<Paciente> listaPacientes = gestor.cargarPacientesDesdeArchivo();
     std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
     /*
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
@@ -559,12 +578,18 @@ int main()
         administrador.mostrarDatos(); // Llamamos a la función mostrarDatos()
         cout << "-------------\n";
     }
-    */
     listaProfesionales.push_back(Profesional::crearProfesional(listaProfesionales));
     gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Profesional.txt", listaProfesionales);
     cout << "Lista de Administradores:\n";
     for (const auto& profesional : listaProfesionales) {
         profesional.mostrarDatos(); // Llamamos a la función mostrarDatos()
+        cout << "-------------\n"; // Separador para mejor legibilidad
+    }
+    */
+    listaPacientes.push_back(Paciente::crearPaciente(listaPacientes));
+    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Paciente.txt", listaPacientes);
+    for (const auto& paciente : listaPacientes) {
+        paciente.mostrarDatos(); // Llamamos a la función mostrarDatos()
         cout << "-------------\n"; // Separador para mejor legibilidad
     }
     cin.get();
