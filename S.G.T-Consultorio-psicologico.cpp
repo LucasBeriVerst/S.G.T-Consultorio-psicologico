@@ -344,7 +344,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         string                  p_fechaTurno,
                                 p_horaTurno,
                                 p_estado;
-        bool                    p_recurrente;
+                            
 
     public:
         Turno                  (int id,
@@ -354,8 +354,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 int periodicidad, 
                                 const string& fechaTurno, 
                                 const string& horaTurno,
-                                string estado, 
-                                bool recurrente)
+                                string estado)
 
             : p_id             (id), 
               p_idAdministrador(idAdministrador), 
@@ -364,8 +363,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
               p_periodicidad   (periodicidad), 
               p_fechaTurno     (fechaTurno),
               p_horaTurno      (horaTurno),
-              p_estado         (estado),
-              p_recurrente     (recurrente) {
+              p_estado         (estado)
+        {
         }
         void mostrarDatos() const {
             cout << "ID Turno: " 
@@ -380,14 +379,13 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                  << p_periodicidad 
                  << "\nEstado: " 
                  << p_estado
-                 << "\nRecurrente: " 
-                 << (p_recurrente ? "Si" : "No") << "\n";
+                 << "\n";
         }
         string toCsv() const {
             stringstream ss;
             ss << p_id << "," << p_idAdministrador << "," << p_idProfesional << ","
                 << p_idPaciente << "," << p_periodicidad << "," << p_fechaTurno << ","
-                << p_horaTurno << "," << p_estado << "," << p_recurrente;
+                << p_horaTurno << "," << p_estado;
             return ss.str();
         }
         int getId() const { return p_id; }
@@ -419,7 +417,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             cout << "Es recurrente? (1 = Si, 0 = No): "; cin >> recurrente;
 
             int nuevoId = generarId(lista); // Generar el ID basado en la lista
-            return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado, recurrente);
+            return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado);
         }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
@@ -432,7 +430,6 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             getline(ss, p_fechaTurno, ',');
             getline(ss, p_horaTurno, ',');
             getline(ss, p_estado, ',');
-            ss >> p_recurrente;
         }
     };
 #pragma endregion
@@ -528,7 +525,61 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             archivo.close();
             return pacientes;
         }
+        // Método para mostrar administradores
+        static void mostrarAdministradores(const vector<Administrador>& listaAdministradores) {
+            cout << "Lista de Administradores:\n";
+            for (const auto& administrador : listaAdministradores) {
+                administrador.mostrarDatos();
+                cout << "-------------\n";
+            }
+        }
 
+        // Método para mostrar profesionales
+        static void mostrarProfesionales(const vector<Profesional>& listaProfesionales) {
+            cout << "Lista de Profesionales:\n";
+            for (const auto& profesional : listaProfesionales) {
+                profesional.mostrarDatos();
+                cout << "-------------\n";
+            }
+        }
+
+        // Método para mostrar pacientes
+        static void mostrarPacientes(const vector<Paciente>& listaPacientes) {
+            cout << "Lista de Pacientes:\n";
+            for (const auto& paciente : listaPacientes) {
+                paciente.mostrarDatos();
+                cout << "-------------\n";
+            }
+        }
+        template <typename T>
+        void mostrarYeliminarPorId(vector<T>& lista, const string& nombreArchivo) {
+            // Mostrar la lista de objetos
+            cout << "Lista de " << typeid(T).name() << ":\n";
+            for (const auto& objeto : lista) {
+                objeto.mostrarDatos();
+                cout << "-------------\n";
+            }
+
+            // Solicitar el ID del objeto a eliminar
+            int idEliminar;
+            cout << "Ingrese el ID del objeto que desea eliminar: ";
+            cin >> idEliminar;
+
+            // Buscar y eliminar el objeto con el ID especificado
+            auto it = lista.begin();
+            while (it != lista.end()) {
+                if (it->getId() == idEliminar) {
+                    cout << "Objeto con ID " << idEliminar << " eliminado.\n";
+                    it = lista.erase(it); // Eliminar el objeto y actualizar el iterador
+                }
+                else {
+                    ++it; // Avanzar al siguiente objeto
+                }
+            }
+
+            // Sobrescribir el archivo con la lista actualizada
+            ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
+        }
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
@@ -573,26 +624,18 @@ int main()
     /*
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
-    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Administrador.txt", listaAdministradores);
-    for (const auto& administrador : listaAdministradores) {
-        administrador.mostrarDatos(); // Llamamos a la función mostrarDatos()
-        cout << "-------------\n";
-    }
+    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Administrador.txt", listaAdministradores);\
+    gestorCsvArchivos::mostrarAdministradores(listaAdministradores);
     listaProfesionales.push_back(Profesional::crearProfesional(listaProfesionales));
     gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Profesional.txt", listaProfesionales);
     cout << "Lista de Administradores:\n";
-    for (const auto& profesional : listaProfesionales) {
-        profesional.mostrarDatos(); // Llamamos a la función mostrarDatos()
-        cout << "-------------\n"; // Separador para mejor legibilidad
     }
+    gestorCsvArchivos::mostrarProfesionales(listaProfesionales);
     */
     listaPacientes.push_back(Paciente::crearPaciente(listaPacientes));
     gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Paciente.txt", listaPacientes);
-    for (const auto& paciente : listaPacientes) {
-        paciente.mostrarDatos(); // Llamamos a la función mostrarDatos()
-        cout << "-------------\n"; // Separador para mejor legibilidad
-    }
-    cin.get();
+    gestorCsvArchivos::mostrarPacientes(listaPacientes);
+    gestor.mostrarYeliminarPorId(listaProfesionales, "Profesional.txt");
     return 0;
 }
 
