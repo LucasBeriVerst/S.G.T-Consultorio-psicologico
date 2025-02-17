@@ -98,6 +98,8 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         {
 
         }
+        string getUsuario() const { return p_usuario; }
+        string getContrasenia() const { return p_contrasenia; }
         string toCsv() const {
             stringstream ss;
             ss << p_id << "," << p_nombre << "," << p_apellido << "," << p_usuario << "," << p_contrasenia;
@@ -118,6 +120,12 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Administrador(nuevoId, nombre, apellido, usuario, contrasenia);
+        }
+        void modificarDesdeConsola() {
+            cout << "Ingrese nuevo nombre: "; cin >> p_nombre;
+            cout << "Ingrese nuevo apellido: "; cin >> p_apellido;
+            cout << "Ingrese nuevo usuario: "; cin >> p_usuario;
+            cout << "Ingrese nueva contrasenia: "; cin >> p_contrasenia;
         }
         void fromCsv(const string& linea) {
             stringstream ss(linea);
@@ -232,6 +240,35 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, diasLaborales);
+
+        }
+        void modificarDesdeConsola() {
+            cout << "Ingrese nuevo nombre: "; cin >> p_nombre;
+            cout << "Ingrese nuevo apellido: "; cin >> p_apellido;
+            cout << "Ingrese nuevo DNI: "; cin >> p_dni;
+            cout << "Ingrese nueva especialidad: "; cin >> p_especialidad;
+            cout << "Ingrese nuevo telefono: "; cin >> p_telefono;
+            cout << "Ingrese nuevo email: "; cin >> p_email;
+
+            // Modificar días laborales
+            p_diaLaboral.clear(); // Limpiar días laborales existentes
+            int cantidadDias;
+            cout << "¿Cuantos dias laborales tiene el profesional? "; cin >> cantidadDias;
+
+            for (int i = 0; i < cantidadDias; ++i) {
+                int dia;
+                cout << "Ingrese el día " << (i + 1) << " (0 = Lunes, 1 = Martes, ..., 6 = Domingo): ";
+                cin >> dia;
+
+                // Validar que el día esté en el rango correcto
+                if (dia >= 0 && dia <= 6) {
+                    p_diaLaboral.push_back(static_cast<DiaSemana>(dia));
+                }
+                else {
+                    cout << "Día no válido. Debe ser un número entre 0 y 6.\n";
+                    --i; // Repetir la entrada para este día
+                }
+            }
         }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
@@ -319,6 +356,14 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
 
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Paciente(nuevoId, nombre, apellido, dni, telefono, email, fechaNacimiento);
+        }
+        void modificarDesdeConsola() {
+            cout << "Ingrese nuevo nombre: "; cin >> p_nombre;
+            cout << "Ingrese nuevo apellido: "; cin >> p_apellido;
+            cout << "Ingrese nuevo DNI: "; cin >> p_dni;
+            cout << "Ingrese nuevo telefono: "; cin >> p_telefono;
+            cout << "Ingrese nuevo email: "; cin >> p_email;
+            cout << "Ingrese nueva fecha de nacimiento (DD/MM/YEAR): "; cin >> p_fechaNacimiento;
         }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
@@ -419,6 +464,15 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             int nuevoId = generarId(lista); // Generar el ID basado en la lista
             return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, periodicidad, fechaTurno, horaTurno, estado);
         }
+        void modificarDesdeConsola() {
+            cout << "Ingrese nuevo ID del administrador: "; cin >> p_idAdministrador;
+            cout << "Ingrese nuevo ID del profesional: "; cin >> p_idProfesional;
+            cout << "Ingrese nuevo ID del paciente: "; cin >> p_idPaciente;
+            cout << "Ingrese nueva periodicidad: "; cin >> p_periodicidad;
+            cout << "Ingrese nueva fecha del turno (YYYY-MM-DD): "; cin >> p_fechaTurno;
+            cout << "Ingrese nueva hora del turno (HH:MM): "; cin >> p_horaTurno;
+            cout << "Ingrese nuevo estado del turno: "; cin >> p_estado;
+        }
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
             char delim;
@@ -447,8 +501,10 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
         fstream A_Profesionales;
         fstream A_Pacientes;
         fstream A_Turnos;
+
+        Administrador administradorActual; // Almacena el administrador actual
     public:
-        gestorCsvArchivos()
+        gestorCsvArchivos() : administradorActual(0, "", "", "", "")
         {
             VerificacionDeArchivo(archivoAdministrador,A_Administradores);
             VerificacionDeArchivo(archivoProfesional,A_Profesionales);
@@ -525,6 +581,42 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             archivo.close();
             return pacientes;
         }
+        // Método para realizar el login
+        bool login(const vector<Administrador>& listaAdministradores) {
+            string usuario, contrasenia;
+            cout << "=== Login ===\n";
+            cout << "Ingrese su usuario: ";
+            cin >> usuario;
+            cout << "Ingrese su contrasenia: ";
+            cin >> contrasenia;
+
+            // Buscar el administrador con las credenciales ingresadas
+            for (const auto& admin : listaAdministradores) {
+                if (admin.getUsuario() == usuario && admin.getContrasenia() == contrasenia) {
+                    cout << "Login exitoso. Bienvenido, " << admin.getNombre() << "!\n";
+                    administradorActual = admin; // Almacenar el administrador actual
+                    return true; // Credenciales válidas
+                }
+            }
+
+            // Si no se encontró un administrador con las credenciales ingresadas
+            cout << "Error: Usuario o contrasenia incorrectos.\n";
+            return false; // Credenciales inválidas
+        }
+        bool solicitarContrasenia() {
+            string contrasenia;
+            cout << "Ingrese su contrasenia para continuar: ";
+            cin >> contrasenia;
+
+            // Verificar la contraseña del administrador actual
+            if (administradorActual.getContrasenia() == contrasenia) {
+                return true; // Contraseña correcta
+            }
+            else {
+                cout << "Error: Contrasenia incorrecta.\n";
+                return false; // Contraseña incorrecta
+            }
+        }
         // Método para mostrar administradores
         static void mostrarAdministradores(const vector<Administrador>& listaAdministradores) {
             cout << "Lista de Administradores:\n";
@@ -580,6 +672,42 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             // Sobrescribir el archivo con la lista actualizada
             ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
         }
+        template <typename T>
+        void mostrarYmodificarPorId(vector<T>& lista, const string& nombreArchivo) {
+            // Mostrar la lista de objetos
+            cout << "Lista de " << typeid(T).name() << ":\n";
+            for (const auto& objeto : lista) {
+                objeto.mostrarDatos();
+                cout << "-------------\n";
+            }
+
+            // Solicitar el ID del objeto a modificar
+            int idModificar;
+            cout << "Ingrese el ID del objeto que desea modificar: ";
+            cin >> idModificar;
+
+            // Buscar el objeto con el ID especificado
+            auto it = lista.begin();
+            while (it != lista.end()) {
+                if (it->getId() == idModificar) {
+                    // Mostrar los datos actuales del objeto
+                    cout << "Datos actuales del objeto:\n";
+                    it->mostrarDatos();
+                    cout << "-------------\n";
+
+                    // Modificar los atributos del objeto
+                    cout << "Ingrese los nuevos datos:\n";
+                    it->modificarDesdeConsola(); // Modificar el objeto directamente
+
+                    cout << "Objeto con ID " << idModificar << " modificado.\n";
+                    break;
+                }
+                ++it;
+            }
+
+            // Sobrescribir el archivo con la lista actualizada
+            ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
+        }
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
@@ -621,6 +749,27 @@ int main()
     std::vector<Profesional> listaProfesionales = gestor.cargarProfesionalesDesdeArchivo();
     std::vector<Paciente> listaPacientes = gestor.cargarPacientesDesdeArchivo();
     std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
+    bool loginExitoso = false;
+    int intentos = 3;
+    do {
+        loginExitoso = gestor.login(listaAdministradores);
+        if (!loginExitoso) {
+            cout << "Intente nuevamente.\n";
+            intentos--;
+            cout << intentos << " intentos restantes...\n";
+        }
+    } while (!loginExitoso && intentos > 0);
+    if(intentos == 0) 
+    {
+        // Si el login es fallido, finaliza el programa
+        cout << "Acceso denegado. Cerrando el programa.\n";
+        return 0;
+    }
+    else
+    {
+        // Si el login es exitoso, continuar con el programa
+        cout << "Acceso concedido. Bienvenido al sistema.\n";
+    }
     /*
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
@@ -631,11 +780,11 @@ int main()
     cout << "Lista de Administradores:\n";
     }
     gestorCsvArchivos::mostrarProfesionales(listaProfesionales);
-    */
     listaPacientes.push_back(Paciente::crearPaciente(listaPacientes));
     gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Paciente.txt", listaPacientes);
     gestorCsvArchivos::mostrarPacientes(listaPacientes);
-    gestor.mostrarYeliminarPorId(listaProfesionales, "Profesional.txt");
+    */
+    gestor.mostrarYmodificarPorId(listaAdministradores, "Administrador.txt");
     return 0;
 }
 
