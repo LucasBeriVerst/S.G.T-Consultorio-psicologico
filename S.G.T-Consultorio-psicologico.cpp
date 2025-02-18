@@ -506,6 +506,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
     public:
         gestorCsvArchivos() : administradorActual(0, "", "", "", "")
         {
+            cout << "\nVerificando integridad de los archivos: \n\n";
             VerificacionDeArchivo(archivoAdministrador,A_Administradores);
             VerificacionDeArchivo(archivoProfesional,A_Profesionales);
             VerificacionDeArchivo(archivoPaciente,A_Pacientes);
@@ -734,7 +735,7 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
             else
             {
                 cout << "Se abrio correctamente el archivo: " 
-                     << nombreArchivo << "\n";
+                     << nombreArchivo << "\n\n";
                 archivo.close();
             }
         }
@@ -754,22 +755,59 @@ int main()
     do {
         loginExitoso = gestor.login(listaAdministradores);
         if (!loginExitoso) {
-            cout << "Intente nuevamente.\n";
+            cout << "\nIntente nuevamente.\n";
             intentos--;
-            cout << intentos << " intentos restantes...\n";
+            cout << intentos << "\n intentos restantes...\n";
         }
     } while (!loginExitoso && intentos > 0);
     if(intentos == 0) 
     {
         // Si el login es fallido, finaliza el programa
-        cout << "Acceso denegado. Cerrando el programa.\n";
+        cout << "\nAcceso denegado. Cerrando el programa.\n";
         return 0;
     }
     else
     {
         // Si el login es exitoso, continuar con el programa
-        cout << "Acceso concedido. Bienvenido al sistema.\n";
+        cout << "\nAcceso concedido. Bienvenido al sistema.\n";
     }
+    int opcion;
+    do {
+        cout << "\n=== Menu Principal ===\n";
+        cout << "1. Gestionar turnos\n";
+        cout << "2. Gestionar administradores\n";
+        cout << "3. Gestionar profecionales\n";
+        cout << "4. Gestionar pacientes\n";
+        cout << "0. Salir\n";
+        cout << "\nIngrese una opción: ";
+        cin >> opcion;
+
+        switch (opcion) {
+        case 1: {
+            break;
+        }
+        case 2: {
+            break;
+        }
+        case 3: {
+
+            break;
+        }
+        case 4: {
+            break;
+        }
+        case 0: {
+            cout << "Saliendo del programa.\n";
+            break;
+        }
+        default: {
+            cout << "Opción no válida. Intente nuevamente.\n";
+            break;
+        }
+        }
+    } while (opcion != 0);
+
+    return 0;
     /*
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
     listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
