@@ -10,6 +10,7 @@
 #include <sstream>
 #include <stack>
 #include <regex>
+#include <ctime>
 using namespace std;
 #pragma endregion
 #pragma region Estructuras
@@ -256,6 +257,9 @@ int mostrarMenu(void (*menu)()) {
                 }
             }
             cout << "\n";
+        }
+        const vector<DiaSemana>& getDiasLaborales() const {
+            return p_diaLaboral;
         }
         string toCsv() const {
             stringstream ss;
@@ -647,15 +651,26 @@ int mostrarMenu(void (*menu)()) {
             }
             return false;
         }
-
-        // Método para obtener el día de la semana a partir de una fecha (0 = Domingo, 1 = Lunes, ..., 6 = Sábado)
         static int obtenerDiaSemana(const string& fecha) {
-            tm tm = {};
-            strptime(fecha.c_str(), "%d-%m-%Y", &tm);
-            mktime(&tm);
-            return tm.tm_wday; // Día de la semana (0-6)
-        }
+            int dia, mes, anio;
+            char sep;
+            stringstream ss(fecha);
+            ss >> dia >> sep >> mes >> sep >> anio;
 
+            // Ajustar mes y año para el cálculo
+            if (mes < 3) {
+                mes += 12;
+                anio--;
+            }
+
+            // Cálculo del día de la semana usando el algoritmo de Zeller
+            int k = anio % 100;
+            int j = anio / 100;
+            int diaSemana = (dia + 13 * (mes + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
+
+            // Ajustar el resultado para que 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
+            return (diaSemana + 5) % 7;
+        }
         // Método para verificar si un profesional está disponible en una fecha
         static bool profesionalDisponible(const Profesional& profesional, const string& fecha) {
             int diaSemana = obtenerDiaSemana(fecha);
@@ -676,31 +691,43 @@ int mostrarMenu(void (*menu)()) {
             }
             return false; // Profesional no encontrado
         }
-
-        // Método para obtener la fecha actual en formato DD-MM-YYYY
-        static string obtenerFechaActual() {
-            auto now = chrono::system_clock::now();
-            time_t now_time = chrono::system_clock::to_time_t(now);
-            tm tm = *localtime(&now_time);
-            stringstream ss;
-            ss << crput_time(&tm, "%d-%m-%Y");
-            return ss.str();
-        }
-
         // Método para verificar si una fecha es inferior a la fecha actual
         static bool fechaEsInferiorActual(const string& fecha) {
             string fechaActual = obtenerFechaActual();
             return fecha < fechaActual;
         }
 
-        // Método para obtener la hora actual en formato HH:MM
+        // Método para obtener la fecha actual en formato DD-MM-YYYY
+        static string obtenerFechaActual() {
+            auto now = chrono::system_clock::now();
+            time_t now_time = chrono::system_clock::to_time_t(now);
+            struct tm tm;
+
+#ifdef _WIN32
+            localtime_s(&tm, &now_time); // Versión segura en Windows
+#else
+            localtime_r(&now_time, &tm); // Versión segura en Linux y Mac
+#endif
+
+            char buffer[11];
+            strftime(buffer, sizeof(buffer), "%d-%m-%Y", &tm);
+            return string(buffer);
+        }
+
         static string obtenerHoraActual() {
             auto now = chrono::system_clock::now();
             time_t now_time = chrono::system_clock::to_time_t(now);
-            tm tm = *localtime(&now_time);
-            stringstream ss;
-            ss << chrono::put_time(&tm, "%H:%M");
-            return ss.str();
+            struct tm tm;
+
+#ifdef _WIN32
+            localtime_s(&tm, &now_time);
+#else
+            localtime_r(&now_time, &tm);
+#endif
+
+            char buffer[6];
+            strftime(buffer, sizeof(buffer), "%H:%M", &tm);
+            return string(buffer);
         }
 
         // Método para verificar si una hora es inferior a la hora actual
