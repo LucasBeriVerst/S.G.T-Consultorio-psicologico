@@ -1042,7 +1042,13 @@ int mostrarMenu(void (*menu)()) {
 
             // Modificar los atributos del turno
             cout << "Ingrese los nuevos datos:\n";
-
+            
+            // Mostrar lista de administradores
+            cout << "\n=== Lista de Administradores ===\n";
+            for (const auto& administrador : listaAdministradores) {
+                administrador.mostrarDatos();
+                cout << "-------------\n";
+            }
             // Solicitar ID del administrador y validar que exista
             int idAdministrador;
             do {
