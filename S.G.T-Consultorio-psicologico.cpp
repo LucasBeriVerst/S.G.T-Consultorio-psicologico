@@ -460,7 +460,33 @@ int mostrarMenu(void (*menu)()) {
             p_idPaciente(idPaciente), p_fechaTurno(fechaTurno), p_horaTurno(horaTurno),
             p_estado(estado) {
         }
+        void setId(int id) {
+            p_id = id;
+        }
 
+        void setIdAdministrador(int idAdministrador) {
+            p_idAdministrador = idAdministrador;
+        }
+
+        void setIdProfesional(int idProfesional) {
+            p_idProfesional = idProfesional;
+        }
+
+        void setIdPaciente(int idPaciente) {
+            p_idPaciente = idPaciente;
+        }
+
+        void setFechaTurno(const string& fechaTurno) {
+            p_fechaTurno = fechaTurno;
+        }
+
+        void setHoraTurno(const string& horaTurno) {
+            p_horaTurno = horaTurno;
+        }
+
+        void setEstado(const string& estado) {
+            p_estado = estado;
+        }
         void mostrarDatos() const {
             cout << "ID Turno: " << p_id
                 << "\nID Administrador: " << p_idAdministrador
@@ -621,8 +647,6 @@ int mostrarMenu(void (*menu)()) {
             getline(ss, p_horaTurno, ',');
             getline(ss, p_estado, ',');
         }
-
-    private:
         // Método para validar el formato de la fecha (DD-MM-YYYY)
         static bool validarFecha(const string& fecha) {
             regex formatoFecha(R"(\d{2}-\d{2}-\d{4})");
@@ -990,7 +1014,136 @@ int mostrarMenu(void (*menu)()) {
             // Sobrescribir el archivo con la lista actualizada
             ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
         }
+        void mostrarYmodificarTurnoPorId(vector<Turno>& listaTurnos,
+                                 const vector<Administrador>& listaAdministradores,
+                                 const vector<Profesional>& listaProfesionales,
+                                 const vector<Paciente>& listaPacientes,
+                                 const string& nombreArchivo) {
+    // Mostrar la lista de turnos
+    cout << "Lista de Turnos:\n";
+    for (const auto& turno : listaTurnos) {
+        turno.mostrarDatos();
+        cout << "-------------\n";
+    }
 
+    // Solicitar el ID del turno a modificar
+    int idModificar;
+    cout << "Ingrese el ID del turno que desea modificar: ";
+    cin >> idModificar;
+
+    // Buscar el turno con el ID especificado
+    auto it = listaTurnos.begin();
+    while (it != listaTurnos.end()) {
+        if (it->getId() == idModificar) {
+            // Mostrar los datos actuales del turno
+            cout << "Datos actuales del turno:\n";
+            it->mostrarDatos();
+            cout << "-------------\n";
+
+            // Modificar los atributos del turno
+            cout << "Ingrese los nuevos datos:\n";
+
+            // Solicitar ID del administrador y validar que exista
+            int idAdministrador;
+            do {
+                cout << "Ingrese ID del administrador: ";
+                cin >> idAdministrador;
+                if (!existeId(listaAdministradores, idAdministrador)) {
+                    cout << "Error: ID de administrador no válido.\n";
+                }
+            } while (!existeId(listaAdministradores, idAdministrador));
+
+            // Solicitar fecha del turno y validar que no sea inferior a la fecha actual
+            string fechaTurno;
+            do {
+                cout << "Ingrese fecha del turno (DD-MM-YYYY): ";
+                cin >> fechaTurno;
+                if (!Turno::validarFecha(fechaTurno)) {
+                    cout << "Error: Formato de fecha no válido.\n";
+                } else if (Turno::fechaEsInferiorActual(fechaTurno)) {
+                    cout << "Error: La fecha no puede ser inferior a la fecha actual.\n";
+                }
+            } while (!Turno::validarFecha(fechaTurno) || Turno::fechaEsInferiorActual(fechaTurno));
+
+            // Mostrar lista de profesionales disponibles en la fecha
+            cout << "\n=== Lista de Profesionales Disponibles ===\n";
+            for (const auto& profesional : listaProfesionales) {
+                if (Turno::profesionalDisponible(profesional, fechaTurno)) {
+                    profesional.mostrarDatos();
+                    cout << "-------------\n";
+                }
+            }
+
+            // Solicitar ID del profesional y validar que esté disponible en la fecha
+            int idProfesional;
+            do {
+                cout << "Ingrese ID del profesional: ";
+                cin >> idProfesional;
+                if (!existeId(listaProfesionales, idProfesional)) {
+                    cout << "Error: ID de profesional no válido.\n";
+                } else if (!Turno::profesionalDisponible(listaProfesionales, idProfesional, fechaTurno)) {
+                    cout << "Error: El profesional no está disponible en la fecha seleccionada.\n";
+                }
+            } while (!existeId(listaProfesionales, idProfesional) ||
+                     !Turno::profesionalDisponible(listaProfesionales, idProfesional, fechaTurno));
+
+            // Mostrar lista de pacientes
+            cout << "\n=== Lista de Pacientes ===\n";
+            for (const auto& paciente : listaPacientes) {
+                paciente.mostrarDatos();
+                cout << "-------------\n";
+            }
+
+            // Solicitar ID del paciente y validar que exista
+            int idPaciente;
+            do {
+                cout << "Ingrese ID del paciente: ";
+                cin >> idPaciente;
+                if (!existeId(listaPacientes, idPaciente)) {
+                    cout << "Error: ID de paciente no válido.\n";
+                }
+            } while (!existeId(listaPacientes, idPaciente));
+
+            // Solicitar hora del turno y validar que no sea inferior a la hora actual
+            string horaTurno;
+            do {
+                cout << "Ingrese hora del turno (HH:MM): ";
+                cin >> horaTurno;
+                if (!Turno::validarHora(horaTurno)) {
+                    cout << "Error: Formato de hora no válido.\n";
+                } else if (fechaTurno == Turno::obtenerFechaActual() && Turno::horaEsInferiorActual(horaTurno)) {
+                    cout << "Error: La hora no puede ser inferior a la hora actual.\n";
+                }
+            } while (!Turno::validarHora(horaTurno) || (fechaTurno == Turno::obtenerFechaActual() && Turno::horaEsInferiorActual(horaTurno)));
+
+            // Validar que no haya turnos superpuestos (excepto el turno actual)
+            if (Turno::existeTurnoSuperpuesto(listaTurnos, fechaTurno, horaTurno)) {
+                cout << "Error: Ya existe un turno en la misma fecha y hora.\n";
+                return; // No modificar el turno si hay superposición
+            }
+
+            // Solicitar el estado del turno
+            string estado;
+            cout << "Ingrese estado del turno: ";
+            cin >> estado;
+
+            // Actualizar los atributos del turno
+            it->setIdAdministrador(idAdministrador);
+            it->setIdProfesional(idProfesional);
+            it->setIdPaciente(idPaciente);
+            it->setFechaTurno(fechaTurno);
+            it->setHoraTurno(horaTurno);
+            it->setEstado(estado);
+
+            cout << "Turno con ID " << idModificar << " modificado.\n";
+            break;
+        }
+        ++it;
+    }
+
+    // Sobrescribir el archivo con la lista actualizada
+    ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, listaTurnos);
+}
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
@@ -1126,7 +1279,7 @@ int main()
             else if (menuActual == menuTurnos) {
                 gestor.solicitarContrasenia();
                 cout << "\nModificando turno...\n\n";
-                gestor.mostrarYmodificarPorId(listaTurnos, "Turnos.txt");
+                gestor.mostrarYmodificarTurnoPorId(listaTurnos,listaAdministradores,listaProfesionales,listaPacientes, "Turnos.txt");
             }
             break;
 
