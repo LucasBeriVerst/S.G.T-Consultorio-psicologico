@@ -49,6 +49,7 @@ void menuAdministradores() {
     cout << "1. Crear administrador\n";
     cout << "2. Modificar administrador\n";
     cout << "3. Eliminar administrador\n";
+    cout << "4. Mostrar administradores\n";
     cout << "0. Volver\n";
 }
 
@@ -57,6 +58,7 @@ void menuProfesionales() {
     cout << "1. Crear profesional\n";
     cout << "2. Modificar profesional\n";
     cout << "3. Eliminar profesional\n";
+    cout << "4. Mostrar profesionales\n";
     cout << "0. Volver\n";
 }
 
@@ -65,6 +67,7 @@ void menuPacientes() {
     cout << "1. Crear paciente\n";
     cout << "2. Modificar paciente\n";
     cout << "3. Eliminar paciente\n";
+    cout << "4. Mostrar pacientes\n";
     cout << "0. Volver\n";
 }
 
@@ -73,6 +76,7 @@ void menuTurnos() {
     cout << "1. Crear turno\n";
     cout << "2. Modificar turno\n";
     cout << "3. Eliminar turno\n";
+    cout << "4. Mostrar turnos\n";
     cout << "0. Volver\n";
 }
 
@@ -832,6 +836,26 @@ int mostrarMenu(void (*menu)()) {
             archivo.close();
             return pacientes;
         }
+        vector<Turno> cargarTurnosDesdeArchivo() {
+            vector<Turno> turnos;
+            ifstream archivo(archivoTurno);
+
+            if (!archivo.is_open()) {
+                cerr << "Error al abrir el archivo: " << archivoTurno << "\n";
+                return turnos;
+            }
+
+            string linea;
+            while (getline(archivo, linea)) {
+                Turno turno(0, 0, 0, 0, "", "", ""); // Crear un objeto temporal
+                turno.fromCsv(linea); // Cargar datos desde la línea CSV
+                turnos.push_back(turno); // Agregar a la lista
+            }
+
+            archivo.close();
+            return turnos;
+        }
+
         // Método para realizar el login
         bool login(const vector<Administrador>& listaAdministradores) {
             string usuario, contrasenia;
@@ -891,6 +915,13 @@ int mostrarMenu(void (*menu)()) {
             cout << "Lista de Pacientes:\n";
             for (const auto& paciente : listaPacientes) {
                 paciente.mostrarDatos();
+                cout << "-------------\n";
+            }
+        }
+        static void mostrarTurnos(const vector<Turno>& listaTurnos) {
+            cout << "Lista de Turnos:\n";
+            for (const auto& turno : listaTurnos) {
+                turno.mostrarDatos(); 
                 cout << "-------------\n";
             }
         }
@@ -959,6 +990,7 @@ int mostrarMenu(void (*menu)()) {
             // Sobrescribir el archivo con la lista actualizada
             ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
         }
+
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
@@ -996,7 +1028,7 @@ int mostrarMenu(void (*menu)()) {
 int main()
 {
     gestorCsvArchivos gestor; //Constructor de gestor: Verifica la creacion e integridad de los archivos
-    std::vector<Turno> listaTurnos;
+    std::vector<Turno> listaTurnos = gestor.cargarTurnosDesdeArchivo();
     std::vector<Profesional> listaProfesionales = gestor.cargarProfesionalesDesdeArchivo();
     std::vector<Paciente> listaPacientes = gestor.cargarPacientesDesdeArchivo();
     std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
@@ -1039,6 +1071,7 @@ int main()
         switch (opcion) {
         case 1:
             if (menuActual == menuPrincipal) {
+                system("cls");
                 pilaMenus.push(menuAdministradores); // Ir al menú de administradores
             }
             else if (menuActual == menuAdministradores) {
@@ -1048,9 +1081,13 @@ int main()
             }
             else if (menuActual == menuProfesionales) {
                 cout << "\nCreando profesional...\n\n";
+                listaProfesionales.push_back(Profesional::crearProfesional(listaProfesionales));
+                gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Profesional.txt", listaProfesionales);
             }
             else if (menuActual == menuPacientes) {
                 cout << "\nCreando paciente...\n\n";
+                listaPacientes.push_back(Paciente::crearPaciente(listaPacientes));
+                gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Paciente.txt", listaPacientes);
             }
             else if (menuActual == menuTurnos) {
                 cout << "\nCreando turno...\n\n";
@@ -1068,42 +1105,98 @@ int main()
 
         case 2:
             if (menuActual == menuPrincipal) {
+                system("cls");
                 pilaMenus.push(menuProfesionales); // Ir al menú de profesionales
             }
             else if (menuActual == menuAdministradores) {
+                gestor.solicitarContrasenia();
                 cout << "\nModificando administrador...\n\n";
+                gestor.mostrarYmodificarPorId(listaAdministradores, "Administrador.txt");
             }
             else if (menuActual == menuProfesionales) {
+                gestor.solicitarContrasenia();
                 cout << "\nModificando profesional...\n\n";
+                gestor.mostrarYmodificarPorId(listaProfesionales, "Profesional.txt");
             }
             else if (menuActual == menuPacientes) {
+                gestor.solicitarContrasenia();
                 cout << "\nModificando paciente...\n\n";
+                gestor.mostrarYmodificarPorId(listaPacientes, "Paciente.txt");
             }
             else if (menuActual == menuTurnos) {
+                gestor.solicitarContrasenia();
                 cout << "\nModificando turno...\n\n";
+                gestor.mostrarYmodificarPorId(listaTurnos, "Turnos.txt");
             }
             break;
 
         case 3:
             if (menuActual == menuPrincipal) {
+                system("cls");
                 pilaMenus.push(menuPacientes); // Ir al menú de pacientes
             }
             else if (menuActual == menuAdministradores) {
+                gestor.solicitarContrasenia();
                 cout << "\nEliminando administrador...\n\n";
+                gestor.mostrarYeliminarPorId(listaAdministradores,"Administrador.txt");
             }
             else if (menuActual == menuProfesionales) {
+                gestor.solicitarContrasenia();
                 cout << "\nEliminando profesional...\n\n";
+                gestor.mostrarYeliminarPorId(listaProfesionales, "Profesional.txt");
             }
             else if (menuActual == menuPacientes) {
+                gestor.solicitarContrasenia();
                 cout << "\nEliminando paciente...\n\n";
+                gestor.mostrarYeliminarPorId(listaPacientes, "Paciente.txt");
             }
             else if (menuActual == menuTurnos) {
+                gestor.solicitarContrasenia();
                 cout << "\nEliminando turno...\n\n";
+                gestor.mostrarYeliminarPorId(listaTurnos, "Turnos.txt");
             }
             break;
-
         case 4:
             if (menuActual == menuPrincipal) {
+                system("cls");
+                pilaMenus.push(menuTurnos); // Ir al menú de turnos
+            }
+            else if (menuActual == menuAdministradores) {
+                system("cls");
+                cout << "\nMostrando administradores...\n\n";
+                gestor.mostrarAdministradores(listaAdministradores);
+                cout << "\nPresione cualquier tecla para volver...\n";
+                cin.ignore(); // Limpiar el buffer de entrada
+                cin.get();    // Esperar a que el usuario presione una tecla
+            }
+            else if (menuActual == menuProfesionales) {
+                system("cls");
+                cout << "\nMostrando profesionales...\n\n";
+                gestor.mostrarProfesionales(listaProfesionales);
+                cout << "\nPresione cualquier tecla para volver...\n";
+                cin.ignore(); // Limpiar el buffer de entrada
+                cin.get();    // Esperar a que el usuario presione una tecla
+            }
+            else if (menuActual == menuPacientes) {
+                system("cls");
+                cout << "\nMostrando pacientes...\n\n";
+                gestor.mostrarPacientes(listaPacientes);
+                cout << "\nPresione cualquier tecla para volver...\n";
+                cin.ignore(); // Limpiar el buffer de entrada
+                cin.get();    // Esperar a que el usuario presione una tecla
+            }
+            else if (menuActual == menuTurnos) {
+                system("cls");
+                cout << "\nMostrando turnos...\n\n";
+                gestor.mostrarTurnos(listaTurnos);
+                cout << "\nPresione cualquier tecla para volver...\n";
+                cin.ignore(); // Limpiar el buffer de entrada
+                cin.get();    // Esperar a que el usuario presione una tecla
+            }
+            break;
+        case 5:
+            if (menuActual == menuPrincipal) {
+                system("cls");
                 pilaMenus.push(menuTurnos); // Ir al menú de turnos
             }
             break;
@@ -1116,6 +1209,7 @@ int main()
             cout << "\nOpción no válida. Intente nuevamente.\n\n";
             break;
         }
+        system("cls");
     }
 
     cout << "\nSaliendo del programa.\n\n";
