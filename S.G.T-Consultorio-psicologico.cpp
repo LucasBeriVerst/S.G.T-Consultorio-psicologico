@@ -13,7 +13,7 @@
 #include <ctime>
 using namespace std;
 #pragma endregion
-#pragma region Estructuras
+#pragma region Estructuras y Menus
 enum class DiaSemana //Representacion de los dias laborales del profesional
 { 
                                 Lunes, 
@@ -24,7 +24,6 @@ enum class DiaSemana //Representacion de los dias laborales del profesional
                                 Sabado, 
                                 Domingo 
 };
-#pragma endregion
 template <typename T>
 bool existeId(const vector<T>& lista, int id) {
     for (const auto& objeto : lista) {
@@ -34,7 +33,21 @@ bool existeId(const vector<T>& lista, int id) {
     }
     return false;
 }
-
+int obtenerEnteroValido() {
+    int valor;
+    while (!(cin >> valor)) { // Mientras la entrada no sea un número
+        cin.clear(); // Limpiar el estado de error de cin
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar la entrada incorrecta
+        cout << "Entrada no valida. Por favor, ingrese un numero: ";
+    }
+    return valor;
+}
+int mostrarMenu(void (*menu)()) {
+    menu();
+    int opcion;
+    cout << "Ingrese una opcion: ";
+    return obtenerEnteroValido();
+}// Función para mostrar un menú y obtener la opción seleccionada
 void menuPrincipal() {
     cout << "\n=== Menu Principal ===\n";
     cout << "1. Administradores\n";
@@ -43,7 +56,6 @@ void menuPrincipal() {
     cout << "4. Turnos\n";
     cout << "0. Salir\n";
 }
-
 void menuAdministradores() {
     cout << "\n=== Menu Administradores ===\n";
     cout << "1. Crear administrador\n";
@@ -52,7 +64,6 @@ void menuAdministradores() {
     cout << "4. Mostrar administradores\n";
     cout << "0. Volver\n";
 }
-
 void menuProfesionales() {
     cout << "\n=== Menu Profesionales ===\n";
     cout << "1. Crear profesional\n";
@@ -61,7 +72,6 @@ void menuProfesionales() {
     cout << "4. Mostrar profesionales\n";
     cout << "0. Volver\n";
 }
-
 void menuPacientes() {
     cout << "\n=== Menu Pacientes ===\n";
     cout << "1. Crear paciente\n";
@@ -70,7 +80,6 @@ void menuPacientes() {
     cout << "4. Mostrar pacientes\n";
     cout << "0. Volver\n";
 }
-
 void menuTurnos() {
     cout << "\n=== Menu Turnos ===\n";
     cout << "1. Crear turno\n";
@@ -79,15 +88,7 @@ void menuTurnos() {
     cout << "4. Mostrar turnos\n";
     cout << "0. Volver\n";
 }
-
-// Función para mostrar un menú y obtener la opción seleccionada
-int mostrarMenu(void (*menu)()) {
-    menu();
-    int opcion;
-    cout << "Ingrese una opcion: ";
-    cin >> opcion;
-    return opcion;
-}
+#pragma endregion
 #pragma region Clases
 #pragma region Persona::
     class Persona //Representacion general de las personas involucradas en el sistema
@@ -1183,7 +1184,6 @@ int mostrarMenu(void (*menu)()) {
     };
 #pragma endregion
 #pragma endregion
-
 int main()
 {
     gestorCsvArchivos gestor; //Constructor de gestor: Verifica la creacion e integridad de los archivos
@@ -1366,29 +1366,13 @@ int main()
 
         default:
             cout << "\nOpción no válida. Intente nuevamente.\n\n";
-            break;
+            cin.ignore(); // Limpiar el buffer de entrada
+            cin.get();    // Esperar a que el usuario presione una tecla
         }
         system("cls");
     }
 
     cout << "\nSaliendo del programa.\n\n";
     return 0;
-
-    /*
-    listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
-    listaAdministradores.push_back(Administrador::crearAdministrador(listaAdministradores));
-    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Administrador.txt", listaAdministradores);\
-    gestorCsvArchivos::mostrarAdministradores(listaAdministradores);
-    listaProfesionales.push_back(Profesional::crearProfesional(listaProfesionales));
-    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Profesional.txt", listaProfesionales);
-    cout << "Lista de Administradores:\n";
-    }
-    gestorCsvArchivos::mostrarProfesionales(listaProfesionales);
-    listaPacientes.push_back(Paciente::crearPaciente(listaPacientes));
-    gestor.ConvertirInformacionDeListaYGuardarlaEnElArchivo("Paciente.txt", listaPacientes);
-    gestorCsvArchivos::mostrarPacientes(listaPacientes);
-    gestor.mostrarYmodificarPorId(listaAdministradores, "Administrador.txt");
-    return 0;
-    */
 }
 
