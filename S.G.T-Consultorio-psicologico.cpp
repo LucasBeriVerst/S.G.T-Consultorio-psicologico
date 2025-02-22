@@ -1,20 +1,17 @@
 #pragma region Librerias y nameSpace
-#include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <sys/stat.h> // Para crear directorios en Linux y Windows
-#include <direct.h> // Para _getcwd
-#include <cstring>  // Para strlen
-#include <chrono>
-#include <sstream>
-#include <stack>
-#include <regex>
-#include <ctime>
-using namespace std;
+#include <iostream>// Proporciona funciones para entrada y salida estándar (cin, cout, cerr) en la consola.
+#include <vector>// Proporciona el contenedor dinámico std::vector para manejar listas de elementos.
+#include <string> // Proporciona la clase std::string para manejar cadenas de texto.
+#include <fstream>// Proporciona funciones para leer y escribir archivos (ifstream, ofstream).
+#include <chrono>// Proporciona utilidades para manejar el tiempo.
+#include <sstream>// Proporciona std::stringstream para manipular cadenas de texto como flujos.
+#include <stack>// Proporciona el contenedor std::stack para manejar pilas (LIFO).
+#include <regex>// Proporciona soporte para expresiones regulares, que se utilizan para validar patrones en cadenas de texto, como fechas y horas.
+#include <ctime>// Proporciona funciones para manejar fechas y horas (time_t, struct tm).
+using namespace std;// Acorta la utilización de "STD".
 #pragma endregion
 #pragma region Estructuras y Menus
-enum class DiaSemana //Representacion de los dias laborales del profesional
+enum class DiaSemana //Representacion de los dias laborales del profesional.
 { 
                                 Lunes, 
                                 Martes, 
@@ -32,7 +29,7 @@ bool existeId(const vector<T>& lista, int id) {
         }
     }
     return false;
-}
+}//Se ingresa el id a buscar y la lista. Recorre la lista y si encuentra un id igual al ingresado devuelve TRUE, sino lo encuentra devuelve FALSE.
 int obtenerEnteroValido() {
     int valor;
     while (!(cin >> valor)) { // Mientras la entrada no sea un número
@@ -41,7 +38,7 @@ int obtenerEnteroValido() {
         cout << "Entrada no valida. Por favor, ingrese un numero: ";
     }
     return valor;
-}
+}//Verifica que el valor ingresado sea un numero entero.
 int mostrarMenu(void (*menu)()) {
     menu();
     int opcion;
@@ -105,13 +102,8 @@ void menuTurnos() {
             :                   p_id       (id), 
                                 p_nombre   (nombre),
                                 p_apellido (apellido)
-        {
-        
-        }
-        ~Persona()
-        {
-        
-        }
+        {}
+        ~Persona(){}
         virtual void mostrarDatos() const {
             cout << "ID: " 
                  << p_id 
@@ -125,7 +117,6 @@ void menuTurnos() {
             if (lista.empty()) {
                 return 1; // Si la lista está vacía, empezar desde 1
             }
-
             int maxId = 0;
             for (const auto& objeto : lista) {
                 if (objeto.getId() > maxId) {
@@ -134,11 +125,9 @@ void menuTurnos() {
             }
             return maxId + 1; // Devolver el mayor ID encontrado + 1
         }
-
         int getId() const { return p_id; }
         string getNombre() const { return p_nombre; }
         string getApellido() const { return p_apellido; }
-
         // Setters
         void setNombre(const string& _nombre) { p_nombre = _nombre; }
         void setApellido(const string& _apellido) { p_apellido = _apellido; }
@@ -162,9 +151,7 @@ void menuTurnos() {
                                 apellido), 
               p_usuario         (usuario), 
               p_contrasenia     (contrasenia) 
-        {
-
-        }
+        {}
         string getUsuario() const { return p_usuario; }
         string getContrasenia() const { return p_contrasenia; }
         string toCsv() const {
@@ -184,7 +171,6 @@ void menuTurnos() {
             cout << "Ingrese apellido: "; cin >> apellido;
             cout << "Ingrese usuario: "; cin >> usuario;
             cout << "Ingrese contrasenia: "; cin >> contrasenia;
-
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Administrador(nuevoId, nombre, apellido, usuario, contrasenia);
         }
@@ -202,7 +188,6 @@ void menuTurnos() {
             getline(ss, apellido, ',');
             getline(ss, usuario, ',');
             getline(ss, contrasenia, ',');
-
             this->p_id = stoi(id);
             this->p_nombre = nombre;
             this->p_apellido = apellido;
@@ -270,14 +255,12 @@ void menuTurnos() {
             stringstream ss;
             ss << p_id << "," << p_nombre << "," << p_apellido << ","
                 << p_dni << "," << p_especialidad << "," << p_telefono << "," << p_email << ",";
-
             for (size_t i = 0; i < p_diaLaboral.size(); ++i) {
                 ss << static_cast<int>(p_diaLaboral[i]);
                 if (i < p_diaLaboral.size() - 1) {
                     ss << ";";
                 }
             }
-
             return ss.str();
         }
         static Profesional crearProfesional(const vector<Profesional>& lista) {
@@ -288,17 +271,14 @@ void menuTurnos() {
             cout << "Ingrese especialidad: "; cin >> especialidad;
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
-
             // Solicitar días laborales
             vector<DiaSemana> diasLaborales;
             int cantidadDias;
             cout << "¿Cuantos dias laborales tiene el profesional? "; cin >> cantidadDias;
-
             for (int i = 0; i < cantidadDias; ++i) {
                 int dia;
                 cout << "Ingrese el día " << (i + 1) << " (0 = Lunes, 1 = Martes, ..., 6 = Domingo): ";
                 cin >> dia;
-
                 // Validar que el día esté en el rango correcto
                 if (dia >= 0 && dia <= 6) {
                     diasLaborales.push_back(static_cast<DiaSemana>(dia));
@@ -308,10 +288,8 @@ void menuTurnos() {
                     --i; // Repetir la entrada para este día
                 }
             }
-
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Profesional(nuevoId, nombre, apellido, dni, especialidad, telefono, email, diasLaborales);
-
         }
         void modificarDesdeConsola() {
             cout << "Ingrese nuevo nombre: "; cin >> p_nombre;
@@ -320,17 +298,14 @@ void menuTurnos() {
             cout << "Ingrese nueva especialidad: "; cin >> p_especialidad;
             cout << "Ingrese nuevo telefono: "; cin >> p_telefono;
             cout << "Ingrese nuevo email: "; cin >> p_email;
-
             // Modificar días laborales
             p_diaLaboral.clear(); // Limpiar días laborales existentes
             int cantidadDias;
             cout << "¿Cuantos dias laborales tiene el profesional? "; cin >> cantidadDias;
-
             for (int i = 0; i < cantidadDias; ++i) {
                 int dia;
                 cout << "Ingrese el día " << (i + 1) << " (0 = Lunes, 1 = Martes, ..., 6 = Domingo): ";
                 cin >> dia;
-
                 // Validar que el día esté en el rango correcto
                 if (dia >= 0 && dia <= 6) {
                     p_diaLaboral.push_back(static_cast<DiaSemana>(dia));
@@ -352,7 +327,6 @@ void menuTurnos() {
             getline(ss, telefono, ',');
             getline(ss, email, ',');
             getline(ss, diasLaboralesStr, ',');
-
             this->p_id = stoi(id);
             this->p_nombre = nombre;
             this->p_apellido = apellido;
@@ -360,7 +334,6 @@ void menuTurnos() {
             this->p_especialidad = especialidad;
             this->p_telefono = telefono;
             this->p_email = email;
-
             // Convertir diasLaboralesStr a vector<DiaSemana>
             this->p_diaLaboral.clear();
             stringstream diasStream(diasLaboralesStr);
@@ -398,9 +371,7 @@ void menuTurnos() {
               p_telefono       (telefono), 
               p_email          (email), 
               p_fechaNacimiento(fechaNacimiento) 
-        {
-
-        }
+        {}
         void mostrarDatos() const override {
             Persona::mostrarDatos();
             cout << "DNI: " 
@@ -424,7 +395,6 @@ void menuTurnos() {
             cout << "Ingrese telefono: "; cin >> telefono;
             cout << "Ingrese email: "; cin >> email;
             cout << "Ingrese fecha de nacimiento (DD/MM/YEAR): "; cin >> fechaNacimiento;
-
             int nuevoId = Persona::generarId(lista); // Generar el ID basado en la lista
             return Paciente(nuevoId, nombre, apellido, dni, telefono, email, fechaNacimiento);
         }
@@ -453,7 +423,6 @@ void menuTurnos() {
     class Turno {
         int p_id, p_idAdministrador, p_idProfesional, p_idPaciente;
         string p_fechaTurno, p_horaTurno, p_estado;
-
     public:
         Turno(int id, int idAdministrador, int idProfesional, int idPaciente,
             const string& fechaTurno, const string& horaTurno, const string& estado)
@@ -464,27 +433,21 @@ void menuTurnos() {
         void setId(int id) {
             p_id = id;
         }
-
         void setIdAdministrador(int idAdministrador) {
             p_idAdministrador = idAdministrador;
         }
-
         void setIdProfesional(int idProfesional) {
             p_idProfesional = idProfesional;
         }
-
         void setIdPaciente(int idPaciente) {
             p_idPaciente = idPaciente;
         }
-
         void setFechaTurno(const string& fechaTurno) {
             p_fechaTurno = fechaTurno;
         }
-
         void setHoraTurno(const string& horaTurno) {
             p_horaTurno = horaTurno;
         }
-
         void setEstado(const string& estado) {
             p_estado = estado;
         }
@@ -497,21 +460,17 @@ void menuTurnos() {
                 << "\nHora: " << p_horaTurno
                 << "\nEstado: " << p_estado << "\n";
         }
-
         string toCsv() const {
             stringstream ss;
             ss << p_id << "," << p_idAdministrador << "," << p_idProfesional << ","
                 << p_idPaciente << "," << p_fechaTurno << "," << p_horaTurno << "," << p_estado;
             return ss.str();
         }
-
         int getId() const { return p_id; }
-
         static int generarId(const vector<Turno>& lista) {
             if (lista.empty()) {
                 return 1; // Si la lista está vacía, empezar desde 1
             }
-
             int maxId = 0;
             for (const auto& objeto : lista) {
                 if (objeto.getId() > maxId) {
@@ -520,21 +479,18 @@ void menuTurnos() {
             }
             return maxId + 1; // Devolver el mayor ID encontrado + 1
         }
-
         static Turno crearTurno(const vector<Turno>& listaTurnos,
             const vector<Administrador>& listaAdministradores,
             const vector<Profesional>& listaProfesionales,
             const vector<Paciente>& listaPacientes) {
             int idAdministrador, idProfesional, idPaciente;
             string fechaTurno, horaTurno, estado;
-
             // Mostrar lista de administradores
             cout << "\n=== Lista de Administradores ===\n";
             for (const auto& admin : listaAdministradores) {
                 admin.mostrarDatos();
                 cout << "-------------\n";
             }
-
             // Solicitar ID del administrador y validar que exista
             do {
                 cout << "Ingrese ID del administrador: "; cin >> idAdministrador;
@@ -542,7 +498,6 @@ void menuTurnos() {
                     cout << "Error: ID de administrador no válido.\n";
                 }
             } while (!existeId(listaAdministradores, idAdministrador));
-
             // Solicitar fecha del turno y validar que no sea inferior a la fecha actual
             do {
                 cout << "Ingrese fecha del turno (DD-MM-YYYY): "; cin >> fechaTurno;
@@ -553,7 +508,6 @@ void menuTurnos() {
                     cout << "Error: La fecha no puede ser inferior a la fecha actual.\n";
                 }
             } while (!validarFecha(fechaTurno) || fechaEsInferiorActual(fechaTurno));
-
             // Mostrar lista de profesionales disponibles en la fecha
             cout << "\n=== Lista de Profesionales Disponibles ===\n";
             for (const auto& profesional : listaProfesionales) {
@@ -562,7 +516,6 @@ void menuTurnos() {
                     cout << "-------------\n";
                 }
             }
-
             // Solicitar ID del profesional y validar que esté disponible en la fecha
             do {
                 cout << "Ingrese ID del profesional: "; cin >> idProfesional;
@@ -574,14 +527,12 @@ void menuTurnos() {
                 }
             } while (!existeId(listaProfesionales, idProfesional) ||
                 !profesionalDisponible(listaProfesionales, idProfesional, fechaTurno));
-
             // Mostrar lista de pacientes
             cout << "\n=== Lista de Pacientes ===\n";
             for (const auto& paciente : listaPacientes) {
                 paciente.mostrarDatos();
                 cout << "-------------\n";
             }
-
             // Solicitar ID del paciente y validar que exista
             do {
                 cout << "Ingrese ID del paciente: "; cin >> idPaciente;
@@ -589,7 +540,6 @@ void menuTurnos() {
                     cout << "Error: ID de paciente no válido.\n";
                 }
             } while (!existeId(listaPacientes, idPaciente));
-
             // Solicitar hora del turno y validar que no sea inferior a la hora actual
             do {
                 cout << "Ingrese hora del turno (HH:MM): "; cin >> horaTurno;
@@ -600,24 +550,19 @@ void menuTurnos() {
                     cout << "Error: La hora no puede ser inferior a la hora actual.\n";
                 }
             } while (!validarHora(horaTurno) || (fechaTurno == obtenerFechaActual() && horaEsInferiorActual(horaTurno)));
-
             // Validar que no haya turnos superpuestos
             if (existeTurnoSuperpuesto(listaTurnos, fechaTurno, horaTurno)) {
                 cout << "Error: Ya existe un turno en la misma fecha y hora.\n";
                 return Turno(0, 0, 0, 0, "", "", ""); // Retornar un turno vacío
             }
-
             cout << "Ingrese estado del turno: "; cin >> estado;
-
             int nuevoId = generarId(listaTurnos); // Generar el ID basado en la lista
             return Turno(nuevoId, idAdministrador, idProfesional, idPaciente, fechaTurno, horaTurno, estado);
         }
-
         void modificarDesdeConsola() {
             cout << "Ingrese nuevo ID del administrador: "; cin >> p_idAdministrador;
             cout << "Ingrese nuevo ID del profesional: "; cin >> p_idProfesional;
             cout << "Ingrese nuevo ID del paciente: "; cin >> p_idPaciente;
-
             // Validar fecha en formato DD-MM-YYYY
             do {
                 cout << "Ingrese nueva fecha del turno (DD-MM-YYYY): "; cin >> p_fechaTurno;
@@ -625,7 +570,6 @@ void menuTurnos() {
                     cout << "Error: Formato de fecha no válido.\n";
                 }
             } while (!validarFecha(p_fechaTurno));
-
             // Validar hora en formato HH:MM
             do {
                 cout << "Ingrese nueva hora del turno (HH:MM): "; cin >> p_horaTurno;
@@ -633,10 +577,8 @@ void menuTurnos() {
                     cout << "Error: Formato de hora no válido.\n";
                 }
             } while (!validarHora(p_horaTurno));
-
             cout << "Ingrese nuevo estado del turno: "; cin >> p_estado;
         }
-
         void fromCsv(const string& csvLine) {
             stringstream ss(csvLine);
             char delim;
@@ -653,13 +595,11 @@ void menuTurnos() {
             regex formatoFecha(R"(\d{2}-\d{2}-\d{4})");
             return regex_match(fecha, formatoFecha);
         }
-
         // Método para validar el formato de la hora (HH:MM)
         static bool validarHora(const string& hora) {
             regex formatoHora(R"(\d{2}:\d{2})");
             return regex_match(hora, formatoHora);
         }
-
         // Método para verificar si hay turnos superpuestos
         static bool existeTurnoSuperpuesto(const vector<Turno>& listaTurnos, const string& fecha, const string& hora) {
             for (const auto& turno : listaTurnos) {
@@ -669,7 +609,6 @@ void menuTurnos() {
             }
             return false; // No hay turnos superpuestos
         }
-
         // Método genérico para verificar si un ID existe en una lista
         template <typename T>
         static bool existeId(const vector<T>& lista, int id) {
@@ -685,18 +624,15 @@ void menuTurnos() {
             char sep;
             stringstream ss(fecha);
             ss >> dia >> sep >> mes >> sep >> anio;
-
             // Ajustar mes y año para el cálculo
             if (mes < 3) {
                 mes += 12;
                 anio--;
             }
-
             // Cálculo del día de la semana usando el algoritmo de Zeller
             int k = anio % 100;
             int j = anio / 100;
             int diaSemana = (dia + 13 * (mes + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
-
             // Ajustar el resultado para que 0 = Domingo, 1 = Lunes, ..., 6 = Sábado
             return (diaSemana + 5) % 7;
         }
@@ -710,7 +646,6 @@ void menuTurnos() {
             }
             return false; // El profesional no trabaja en ese día
         }
-
         // Método para verificar si un profesional está disponible en una fecha (sobrecarga para ID)
         static bool profesionalDisponible(const vector<Profesional>& listaProfesionales, int idProfesional, const string& fecha) {
             for (const auto& profesional : listaProfesionales) {
@@ -725,40 +660,33 @@ void menuTurnos() {
             string fechaActual = obtenerFechaActual();
             return fecha < fechaActual;
         }
-
         // Método para obtener la fecha actual en formato DD-MM-YYYY
         static string obtenerFechaActual() {
             auto now = chrono::system_clock::now();
             time_t now_time = chrono::system_clock::to_time_t(now);
             struct tm tm;
-
 #ifdef _WIN32
             localtime_s(&tm, &now_time); // Versión segura en Windows
 #else
             localtime_r(&now_time, &tm); // Versión segura en Linux y Mac
 #endif
-
             char buffer[11];
             strftime(buffer, sizeof(buffer), "%d-%m-%Y", &tm);
             return string(buffer);
         }
-
         static string obtenerHoraActual() {
             auto now = chrono::system_clock::now();
             time_t now_time = chrono::system_clock::to_time_t(now);
             struct tm tm;
-
 #ifdef _WIN32
             localtime_s(&tm, &now_time);
 #else
             localtime_r(&now_time, &tm);
 #endif
-
             char buffer[6];
             strftime(buffer, sizeof(buffer), "%H:%M", &tm);
             return string(buffer);
         }
-
         // Método para verificar si una hora es inferior a la hora actual
         static bool horaEsInferiorActual(const string& hora) {
             string horaActual = obtenerHoraActual();
@@ -769,18 +697,15 @@ void menuTurnos() {
 #pragma region Gestor
     class gestorCsvArchivos // Gestor de archivos 
     {
-
         const string archivoAdministrador = "Administrador.txt";
         const string archivoProfesional = "Profesional.txt";
         const string archivoPaciente = "Paciente.txt";
         const string archivoTurno = "Turnos.txt";
-
         //archivos de escritura y lectura.
         fstream A_Administradores;
         fstream A_Profesionales;
         fstream A_Pacientes;
         fstream A_Turnos;
-
         Administrador administradorActual; // Almacena el administrador actual
     public:
         gestorCsvArchivos() : administradorActual(0, "", "", "", "")
@@ -798,7 +723,6 @@ void menuTurnos() {
                 cerr << "Error al abrir el archivo para escritura." << endl;
                 return;
             }
-
             for (const auto& objeto : lista) {
                 file << objeto.toCsv() << "\n";  // Llamamos al método toCsv() del objeto
             }
@@ -807,80 +731,67 @@ void menuTurnos() {
         vector<Administrador> cargarAdministradoresDesdeArchivo() {
             vector<Administrador> administradores;
             ifstream archivo(archivoAdministrador);
-
             if (!archivo.is_open()) {
                 cerr << "Error al abrir el archivo: " << archivoAdministrador << "\n";
                 return administradores;
             }
-
             string linea;
             while (getline(archivo, linea)) {
                 Administrador admin(0, "", "", "", ""); // Crear un objeto temporal
                 admin.fromCsv(linea); // Cargar datos desde la línea CSV
                 administradores.push_back(admin); // Agregar a la lista
             }
-
             archivo.close();
             return administradores;
         }
         vector<Profesional> cargarProfesionalesDesdeArchivo() {
             vector<Profesional> profesionales;
             ifstream archivo(archivoProfesional);
-
             if (!archivo.is_open()) {
                 cerr << "Error al abrir el archivo: " << archivoProfesional << "\n";
                 return profesionales;
             }
-
             string linea;
             while (getline(archivo, linea)) {
                 Profesional profesional(0, "", "", "", "", "", "", {}); // Crear un objeto temporal
                 profesional.fromCsv(linea); // Cargar datos desde la línea CSV
                 profesionales.push_back(profesional); // Agregar a la lista
             }
-
             archivo.close();
             return profesionales;
         }
         vector<Paciente> cargarPacientesDesdeArchivo() {
             vector<Paciente> pacientes;
             ifstream archivo(archivoPaciente);
-
             if (!archivo.is_open()) {
                 cerr << "Error al abrir el archivo: " << archivoPaciente << "\n";
                 return pacientes;
             }
-
             string linea;
             while (getline(archivo, linea)) {
                 Paciente paciente(0, "", "", "", "", "", ""); // Crear un objeto temporal
                 paciente.fromCsv(linea); // Cargar datos desde la línea CSV
                 pacientes.push_back(paciente); // Agregar a la lista
             }
-
             archivo.close();
             return pacientes;
         }
         vector<Turno> cargarTurnosDesdeArchivo() {
             vector<Turno> turnos;
             ifstream archivo(archivoTurno);
-
             if (!archivo.is_open()) {
                 cerr << "Error al abrir el archivo: " << archivoTurno << "\n";
                 return turnos;
             }
-
             string linea;
             while (getline(archivo, linea)) {
                 Turno turno(0, 0, 0, 0, "", "", ""); // Crear un objeto temporal
                 turno.fromCsv(linea); // Cargar datos desde la línea CSV
                 turnos.push_back(turno); // Agregar a la lista
             }
-
             archivo.close();
             return turnos;
         }
-
         // Método para realizar el login
         bool login(const vector<Administrador>& listaAdministradores) {
             string usuario, contrasenia;
@@ -925,7 +836,6 @@ void menuTurnos() {
                 cout << "-------------\n";
             }
         }
-
         // Método para mostrar profesionales
         static void mostrarProfesionales(const vector<Profesional>& listaProfesionales) {
             cout << "Lista de Profesionales:\n";
@@ -934,7 +844,6 @@ void menuTurnos() {
                 cout << "-------------\n";
             }
         }
-
         // Método para mostrar pacientes
         static void mostrarPacientes(const vector<Paciente>& listaPacientes) {
             cout << "Lista de Pacientes:\n";
@@ -958,12 +867,10 @@ void menuTurnos() {
                 objeto.mostrarDatos();
                 cout << "-------------\n";
             }
-
             // Solicitar el ID del objeto a eliminar
             int idEliminar;
             cout << "Ingrese el ID del objeto que desea eliminar: ";
             cin >> idEliminar;
-
             // Buscar y eliminar el objeto con el ID especificado
             auto it = lista.begin();
             while (it != lista.end()) {
@@ -975,7 +882,6 @@ void menuTurnos() {
                     ++it; // Avanzar al siguiente objeto
                 }
             }
-
             // Sobrescribir el archivo con la lista actualizada
             ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
         }
@@ -987,12 +893,10 @@ void menuTurnos() {
                 objeto.mostrarDatos();
                 cout << "-------------\n";
             }
-
             // Solicitar el ID del objeto a modificar
             int idModificar;
             cout << "Ingrese el ID del objeto que desea modificar: ";
             cin >> idModificar;
-
             // Buscar el objeto con el ID especificado
             auto it = lista.begin();
             while (it != lista.end()) {
@@ -1001,17 +905,14 @@ void menuTurnos() {
                     cout << "Datos actuales del objeto:\n";
                     it->mostrarDatos();
                     cout << "-------------\n";
-
                     // Modificar los atributos del objeto
                     cout << "Ingrese los nuevos datos:\n";
                     it->modificarDesdeConsola(); // Modificar el objeto directamente
-
                     cout << "Objeto con ID " << idModificar << " modificado.\n";
                     break;
                 }
                 ++it;
             }
-
             // Sobrescribir el archivo con la lista actualizada
             ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, lista);
         }
@@ -1026,12 +927,10 @@ void menuTurnos() {
         turno.mostrarDatos();
         cout << "-------------\n";
     }
-
     // Solicitar el ID del turno a modificar
     int idModificar;
     cout << "Ingrese el ID del turno que desea modificar: ";
     cin >> idModificar;
-
     // Buscar el turno con el ID especificado
     auto it = listaTurnos.begin();
     while (it != listaTurnos.end()) {
@@ -1040,10 +939,8 @@ void menuTurnos() {
             cout << "Datos actuales del turno:\n";
             it->mostrarDatos();
             cout << "-------------\n";
-
             // Modificar los atributos del turno
             cout << "Ingrese los nuevos datos:\n";
-            
             // Mostrar lista de administradores
             cout << "\n=== Lista de Administradores ===\n";
             for (const auto& administrador : listaAdministradores) {
@@ -1059,7 +956,6 @@ void menuTurnos() {
                     cout << "Error: ID de administrador no válido.\n";
                 }
             } while (!existeId(listaAdministradores, idAdministrador));
-
             // Solicitar fecha del turno y validar que no sea inferior a la fecha actual
             string fechaTurno;
             do {
@@ -1071,7 +967,6 @@ void menuTurnos() {
                     cout << "Error: La fecha no puede ser inferior a la fecha actual.\n";
                 }
             } while (!Turno::validarFecha(fechaTurno) || Turno::fechaEsInferiorActual(fechaTurno));
-
             // Mostrar lista de profesionales disponibles en la fecha
             cout << "\n=== Lista de Profesionales Disponibles ===\n";
             for (const auto& profesional : listaProfesionales) {
@@ -1080,7 +975,6 @@ void menuTurnos() {
                     cout << "-------------\n";
                 }
             }
-
             // Solicitar ID del profesional y validar que esté disponible en la fecha
             int idProfesional;
             do {
@@ -1093,14 +987,12 @@ void menuTurnos() {
                 }
             } while (!existeId(listaProfesionales, idProfesional) ||
                      !Turno::profesionalDisponible(listaProfesionales, idProfesional, fechaTurno));
-
             // Mostrar lista de pacientes
             cout << "\n=== Lista de Pacientes ===\n";
             for (const auto& paciente : listaPacientes) {
                 paciente.mostrarDatos();
                 cout << "-------------\n";
             }
-
             // Solicitar ID del paciente y validar que exista
             int idPaciente;
             do {
@@ -1110,7 +1002,6 @@ void menuTurnos() {
                     cout << "Error: ID de paciente no válido.\n";
                 }
             } while (!existeId(listaPacientes, idPaciente));
-
             // Solicitar hora del turno y validar que no sea inferior a la hora actual
             string horaTurno;
             do {
@@ -1122,18 +1013,15 @@ void menuTurnos() {
                     cout << "Error: La hora no puede ser inferior a la hora actual.\n";
                 }
             } while (!Turno::validarHora(horaTurno) || (fechaTurno == Turno::obtenerFechaActual() && Turno::horaEsInferiorActual(horaTurno)));
-
             // Validar que no haya turnos superpuestos (excepto el turno actual)
             if (Turno::existeTurnoSuperpuesto(listaTurnos, fechaTurno, horaTurno)) {
                 cout << "Error: Ya existe un turno en la misma fecha y hora.\n";
                 return; // No modificar el turno si hay superposición
             }
-
             // Solicitar el estado del turno
             string estado;
             cout << "Ingrese estado del turno: ";
             cin >> estado;
-
             // Actualizar los atributos del turno
             it->setIdAdministrador(idAdministrador);
             it->setIdProfesional(idProfesional);
@@ -1141,20 +1029,17 @@ void menuTurnos() {
             it->setFechaTurno(fechaTurno);
             it->setHoraTurno(horaTurno);
             it->setEstado(estado);
-
             cout << "Turno con ID " << idModificar << " modificado.\n";
             break;
         }
         ++it;
     }
-
     // Sobrescribir el archivo con la lista actualizada
     ConvertirInformacionDeListaYGuardarlaEnElArchivo(nombreArchivo, listaTurnos);
 }
         void VerificacionDeArchivo(const string& nombreArchivo, fstream& archivo)
         {
             archivo.open(nombreArchivo, ios::in);
-
             if (!archivo)
             {
                 cout << "\nEl archivo " << nombreArchivo << " no existe, se creara: "
@@ -1166,9 +1051,7 @@ void menuTurnos() {
             {
                 archivo.close();
             }
-
             archivo.open(nombreArchivo, ios::in | ios::out | ios::app);
-
             if (!archivo)
             {
                 cout << "Error al abrir o crear el archivo: " 
@@ -1191,7 +1074,6 @@ int main()
     std::vector<Profesional> listaProfesionales = gestor.cargarProfesionalesDesdeArchivo();
     std::vector<Paciente> listaPacientes = gestor.cargarPacientesDesdeArchivo();
     std::vector<Administrador> listaAdministradores = gestor.cargarAdministradoresDesdeArchivo();
-
     bool loginExitoso = false;
     int intentos = 3;
     if (listaAdministradores.empty())
@@ -1219,14 +1101,12 @@ int main()
     {
         // Si el login es exitoso, continuar con el programa
         cout << "\nAcceso concedido. Bienvenido al sistema.\n";
-    }
-    
+    }  
     stack<void (*)()> pilaMenus; // Pila para gestionar los menús
     pilaMenus.push(menuPrincipal); // Iniciar con el menú principal
     while (!pilaMenus.empty()) {
         void (*menuActual)() = pilaMenus.top(); // Obtener el menú actual
         int opcion = mostrarMenu(menuActual); // Mostrar el menú y obtener la opción
-
         switch (opcion) {
         case 1:
             if (menuActual == menuPrincipal) {
@@ -1261,7 +1141,6 @@ int main()
                 }
             }
             break;
-
         case 2:
             if (menuActual == menuPrincipal) {
                 system("cls");
@@ -1288,7 +1167,6 @@ int main()
                 gestor.mostrarYmodificarTurnoPorId(listaTurnos,listaAdministradores,listaProfesionales,listaPacientes, "Turnos.txt");
             }
             break;
-
         case 3:
             if (menuActual == menuPrincipal) {
                 system("cls");
@@ -1359,11 +1237,9 @@ int main()
                 pilaMenus.push(menuTurnos); // Ir al menú de turnos
             }
             break;
-
         case 0:
             pilaMenus.pop(); // Volver al menú anterior
             break;
-
         default:
             cout << "\nOpción no válida. Intente nuevamente.\n\n";
             cin.ignore(); // Limpiar el buffer de entrada
