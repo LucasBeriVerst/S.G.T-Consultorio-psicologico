@@ -831,6 +831,8 @@ void menuTurnos() {
             }
             else {
                 cout << "Error: Contrasenia incorrecta.\n";
+                cin.ignore(); // Limpiar el buffer de entrada
+                cin.get();    // Esperar a que el usuario presione una tecla
                 return false; // Contraseña incorrecta
             }
         }// Método solicitarContrasenia: Solicita la contraseña del administrador actual.
@@ -1107,7 +1109,7 @@ int main()
     else
     {
         // Si el login es exitoso, continuar con el programa
-        cout << "\nAcceso concedido. Bienvenido al sistema.\n";
+        cout << "\nAcceso concedido. Bienvenido al sistema de Gestion de Consultoria: 'S.G.C turnos'.\n";
     }  
     stack<void (*)()> pilaMenus; // Pila para gestionar los menús
     pilaMenus.push(menuPrincipal); // Iniciar con el menú principal
@@ -1154,24 +1156,32 @@ int main()
                 pilaMenus.push(menuProfesionales); // Ir al menú de profesionales
             }
             else if (menuActual == menuAdministradores) {
-                gestor.solicitarContrasenia();
-                cout << "\nModificando administrador...\n\n";
-                gestor.mostrarYmodificarPorId(listaAdministradores, "Administrador.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nModificando administrador...\n\n";
+                    gestor.mostrarYmodificarPorId(listaAdministradores, "Administrador.txt");
+                }
             }
             else if (menuActual == menuProfesionales) {
-                gestor.solicitarContrasenia();
-                cout << "\nModificando profesional...\n\n";
-                gestor.mostrarYmodificarPorId(listaProfesionales, "Profesional.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nModificando profesional...\n\n";
+                    gestor.mostrarYmodificarPorId(listaProfesionales, "Profesional.txt");
+                }
             }
             else if (menuActual == menuPacientes) {
-                gestor.solicitarContrasenia();
-                cout << "\nModificando paciente...\n\n";
-                gestor.mostrarYmodificarPorId(listaPacientes, "Paciente.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nModificando paciente...\n\n";
+                    gestor.mostrarYmodificarPorId(listaPacientes, "Paciente.txt");
+                }
             }
             else if (menuActual == menuTurnos) {
-                gestor.solicitarContrasenia();
-                cout << "\nModificando turno...\n\n";
-                gestor.mostrarYmodificarTurnoPorId(listaTurnos,listaAdministradores,listaProfesionales,listaPacientes, "Turnos.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nModificando turno...\n\n";
+                    gestor.mostrarYmodificarTurnoPorId(listaTurnos, listaAdministradores, listaProfesionales, listaPacientes, "Turnos.txt");
+                }
             }
             break;
         case 3:
@@ -1180,24 +1190,32 @@ int main()
                 pilaMenus.push(menuPacientes); // Ir al menú de pacientes
             }
             else if (menuActual == menuAdministradores) {
-                gestor.solicitarContrasenia();
-                cout << "\nEliminando administrador...\n\n";
-                gestor.mostrarYeliminarPorId(listaAdministradores,"Administrador.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nEliminando administrador...\n\n";
+                    gestor.mostrarYeliminarPorId(listaAdministradores, "Administrador.txt");
+                }
             }
             else if (menuActual == menuProfesionales) {
-                gestor.solicitarContrasenia();
-                cout << "\nEliminando profesional...\n\n";
-                gestor.mostrarYeliminarPorId(listaProfesionales, "Profesional.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nEliminando profesional...\n\n";
+                    gestor.mostrarYeliminarPorId(listaProfesionales, "Profesional.txt");
+                }
             }
             else if (menuActual == menuPacientes) {
-                gestor.solicitarContrasenia();
-                cout << "\nEliminando paciente...\n\n";
-                gestor.mostrarYeliminarPorId(listaPacientes, "Paciente.txt");
+                if (gestor.solicitarContrasenia())
+                {
+                    cout << "\nEliminando paciente...\n\n";
+                    gestor.mostrarYeliminarPorId(listaPacientes, "Paciente.txt");
+                }
             }
             else if (menuActual == menuTurnos) {
-                gestor.solicitarContrasenia();
-                cout << "\nEliminando turno...\n\n";
-                gestor.mostrarYeliminarPorId(listaTurnos, "Turnos.txt");
+                if(gestor.solicitarContrasenia())
+                {
+                    cout << "\nEliminando turno...\n\n";
+                    gestor.mostrarYeliminarPorId(listaTurnos, "Turnos.txt");
+                }
             }
             break;
         case 4:
