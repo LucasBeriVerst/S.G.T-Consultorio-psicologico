@@ -1,0 +1,3 @@
+1,juana,Rivas,42030453,12342233,juan@hotmail.com,23/02/1999
+2,lucas,Beritich,42225276,2235901648,LucasBeritich@gmail.com,13/11/1999
+3,Sol,Peres,13112334,23414223,Soleres@gmail.com,11/08/2004
